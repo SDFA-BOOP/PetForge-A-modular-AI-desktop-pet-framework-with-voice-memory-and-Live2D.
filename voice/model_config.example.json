@@ -1,0 +1,30 @@
+{
+  "_comment": "PetForge 语音接入接口：把你的模型路径填在这里即可，无需改代码。",
+
+  "backend": "gpt_sovits",
+
+  "gpt_sovits": {
+    "t2s_weights_path": "你的 GPT/AR 权重.ckpt",
+    "vits_weights_path": "你的 SoVITS 权重.pth",
+    "ref_audio_path": "你的参考音频.wav",
+    "ref_text": "参考音频对应的文本（可选）",
+    "host": "127.0.0.1",
+    "port": 9881
+  },
+
+  "onnx": {
+    "_comment": "安卓端本地推理用的 ONNX（导出后放到 android/app/src/main/assets/tts/）",
+    "ssl": "ssl.onnx",
+    "t2s_encoder": "rikka_t2s_encoder.onnx",
+    "t2s_fs_decoder": "rikka_t2s_fs_decoder.onnx",
+    "t2s_s_decoder": "rikka_t2s_s_decoder.onnx",
+    "vits": "rikka_vits.onnx",
+    "ref_audio": "ref.wav"
+  },
+
+  "tts": {
+    "text_lang": "ja",
+    "speed_factor": 1.0,
+    "pitch_semitones": 0.0
+  }
+}
