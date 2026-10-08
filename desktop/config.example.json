@@ -7,6 +7,12 @@
   "timeout": 60,
   "dark_mode": true,
   "ui_opacity": 0.78,
+  "ui_colors": {
+    "bg": "", "fg": "",
+    "entry_bg": "", "entry_fg": "",
+    "btn_bg": "", "btn_fg": "",
+    "user": "", "pet": "", "sys": ""
+  },
   "emotion_level": 3,
   "emotion_auto": true,
   "emotion_auto_range": 3,
@@ -40,8 +46,10 @@
     "gpt_sovits_venv_python": "e:\\GPT-SoVITS\\venv\\Scripts\\python.exe",
     "gpt_sovits_server_py": "e:\\GPT-SoVITS\\gpt_sovits_server.py",
     "voice": "zh-CN-XiaoxiaoNeural",
+    "language": "ja",
     "japanese": true,
     "jp_voice": "ja-JP-AoiNeural",
+    "en_voice": "en-US-AriaNeural",
     "rate": -10,
     "pitch": 0,
     "speak_mode": "sync",

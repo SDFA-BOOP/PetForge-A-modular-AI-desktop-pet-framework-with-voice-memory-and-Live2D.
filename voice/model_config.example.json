@@ -23,6 +23,7 @@
   },
 
   "tts": {
+    "_comment": "text_lang: zh(中文) | ja(日语) | en(英语)；电脑端设置里的「配音语言」会覆盖这里",
     "text_lang": "ja",
     "speed_factor": 1.0,
     "pitch_semitones": 0.0

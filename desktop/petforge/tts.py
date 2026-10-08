@@ -120,6 +120,9 @@ VOICES = [
     ("zh-CN-XiaomengNeural", "晓梦 - 甜美女声"),
     ("ja-JP-NanamiNeural", "Nanami - 日语女声"),
     ("ja-JP-AoiNeural", "Aoi - 日语女声"),
+    ("en-US-AriaNeural", "Aria - 英语女声"),
+    ("en-US-JennyNeural", "Jenny - 英语女声"),
+    ("en-US-GuyNeural", "Guy - 英语男声"),
 ]
 
 

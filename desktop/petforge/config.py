@@ -44,6 +44,13 @@ DEFAULT_CONFIG = {
     # ---- 界面 ----
     "dark_mode": False,
     "ui_opacity": 0.96,  # 桌宠聊天/设置窗口透明度（0.78~1.00）
+    # 界面配色自定义：留空 = 用主题默认；填 #RRGGBB 覆盖对应颜色（深/浅色模式通用）
+    "ui_colors": {
+        "bg": "", "fg": "",
+        "entry_bg": "", "entry_fg": "",
+        "btn_bg": "", "btn_fg": "",
+        "user": "", "pet": "", "sys": "",
+    },
     # ---- 对话 ----
     "emotion_level": 5,  # 情绪程度 1-10（1 平静克制，10 中二拉满），作为自动调整的基准
     "emotion_auto": True,       # 自动调整情绪：检测中二/平静话语，在基准上 ±range
@@ -82,8 +89,10 @@ DEFAULT_CONFIG = {
         "gpt_sovits_venv_python": "",   # 六花原声 venv python（留空自动探测：项目内 GPT-SoVITS/venv，其次旧绝对路径）
         "gpt_sovits_server_py": "",     # 六花原声服务脚本（留空自动探测）
         "voice": "zh-CN-XiaoyiNeural",
-        "japanese": False,                 # 日语配音（仅 edge 后端）：勾选后回复文字仍为中文，但配音用日语
-        "jp_voice": "ja-JP-NanamiNeural",  # 日语配音声线
+        "language": "zh",              # 配音语言：zh(中文) | ja(日语) | en(英语)；回复文字仍为中文，仅朗读语言不同
+        "japanese": False,             # 旧字段（兼容保留）：等价于 language=ja，language 优先
+        "jp_voice": "ja-JP-NanamiNeural",  # 日语配音声线（edge 后端）
+        "en_voice": "en-US-AriaNeural",    # 英语配音声线（edge 后端）
         "rate": 0,                  # 语速（%，-50 ~ +50）
         "pitch": 0,                 # 音调微调（半音，-3 ~ +3）
         "speak_mode": "sync",       # sync(显示与配音同时) | delayed(先显示文字，稍后配音)

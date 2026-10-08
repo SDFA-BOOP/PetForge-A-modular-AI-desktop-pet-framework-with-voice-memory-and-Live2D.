@@ -54,6 +54,14 @@ DARK_THEME = {
 }
 
 
+def _tts_language(tcfg) -> str:
+    """解析配音语言：优先 tts.language，回退旧字段 tts.japanese。返回 zh/ja/en。"""
+    lang = str((tcfg or {}).get("language", "") or "").strip().lower()
+    if lang in ("zh", "ja", "en"):
+        return lang
+    return "ja" if (tcfg or {}).get("japanese") else "zh"
+
+
 def _to_int(v, default=0):
     """把 +20% / +3Hz 之类的配置值转成整数，解析失败用默认值。"""
     try:
@@ -878,7 +886,8 @@ class PetApp:
             "tts_backend": tk.StringVar(value=self.cfg["tts"].get("backend", "edge")),
             "gsv_url": tk.StringVar(value=self.cfg["tts"].get("gpt_sovits_url", "http://127.0.0.1:9881")),
             "voice": tk.StringVar(value=self.cfg["tts"]["voice"]),
-            "tts_japanese": tk.BooleanVar(value=self.cfg["tts"].get("japanese", False)),
+            "tts_language": tk.StringVar(value=_tts_language(self.cfg["tts"])),
+            "en_voice": tk.StringVar(value=self.cfg["tts"].get("en_voice", "en-US-AriaNeural")),
             "tts_rate": tk.IntVar(value=_to_int(self.cfg["tts"].get("rate", 0))),
             "tts_pitch": tk.IntVar(value=_to_int(self.cfg["tts"].get("pitch", 0))),
             "tts_speak_mode": tk.StringVar(
@@ -947,9 +956,14 @@ class PetApp:
         tk.Label(frm, text="中文音色（edge 后端）", anchor="w").pack(fill="x", padx=4)
         ttk.Combobox(frm, textvariable=self._var["voice"],
                      values=[v[0] for v in tts.VOICES]).pack(fill="x", padx=4, pady=2)
-        check(self._var["tts_japanese"], "日语输出（回复翻译成日语朗读）")
-        tk.Label(frm, text="日语音色", anchor="w").pack(fill="x", padx=4)
+        tk.Label(frm, text="配音语言（回复文字仍为中文，仅朗读语言不同）", anchor="w").pack(fill="x", padx=4)
+        ttk.Combobox(frm, textvariable=self._var["tts_language"],
+                     values=["zh", "ja", "en"], state="readonly").pack(fill="x", padx=4, pady=2)
+        tk.Label(frm, text="日语音色（配音语言 ja 时）", anchor="w").pack(fill="x", padx=4)
         ttk.Combobox(frm, textvariable=self._var["jp_voice"],
+                     values=[v[0] for v in tts.VOICES]).pack(fill="x", padx=4, pady=2)
+        tk.Label(frm, text="英语音色（配音语言 en 时）", anchor="w").pack(fill="x", padx=4)
+        ttk.Combobox(frm, textvariable=self._var["en_voice"],
                      values=[v[0] for v in tts.VOICES]).pack(fill="x", padx=4, pady=2)
         tk.Label(frm, text="音色框可手动输入任意 edge-tts 音色名（自定义声线）",
                  fg="#868e96", wraplength=420, justify="left").pack(anchor="w", padx=4)
@@ -975,7 +989,7 @@ class PetApp:
         check(self._var["emotion_auto"], "自动调整情绪（检测到中二话语自动调高）")
         tk.Label(frm, text="自动调整幅度（±1~5，默认±3）", anchor="w").pack(fill="x", padx=4)
         tk.Entry(frm, textvariable=self._var["emotion_auto_range"], width=8).pack(anchor="w", padx=4, pady=2)
-        tk.Label(frm, text="气泡语言（auto=跟随语音，zh=中文，ja=日文）", anchor="w").pack(fill="x", padx=4)
+        tk.Label(frm, text="气泡语言（auto=跟随语音；zh=始终显示中文）", anchor="w").pack(fill="x", padx=4)
         ttk.Combobox(frm, textvariable=self._var["bubble_lang"],
                      values=["auto", "zh", "ja"]).pack(fill="x", padx=4, pady=2)
 
@@ -1068,6 +1082,25 @@ class PetApp:
         tk.Scale(frm, from_=0.78, to=1.0, resolution=0.01, orient="horizontal",
                  variable=self._var["ui_opacity"], command=self._preview_ui_opacity).pack(fill="x", padx=4)
 
+        tk.Label(frm, text="界面配色（留空 = 主题默认；点「选择」改色，保存后生效）",
+                 anchor="w").pack(fill="x", padx=4, pady=(8, 0))
+        self._ui_colors = {k: str(v or "").strip()
+                           for k, v in (self.cfg.get("ui_colors") or {}).items()}
+        self._color_swatches = {}
+        for key, txt in (("bg", "背景"), ("fg", "文字"), ("btn_bg", "按钮"), ("btn_fg", "按钮文字"),
+                         ("entry_bg", "输入框"), ("entry_fg", "输入框文字"),
+                         ("user", "用户名"), ("pet", "角色名"), ("sys", "系统消息")):
+            row = tk.Frame(frm)
+            row.pack(fill="x", padx=4, pady=1)
+            tk.Label(row, text=txt, width=10, anchor="w").pack(side="left")
+            sw = tk.Label(row, text="  ", width=5, relief="solid", bd=1)
+            sw.pack(side="right", padx=2)
+            tk.Button(row, text="选择", command=lambda k=key: self._pick_ui_color(k)).pack(side="right", padx=2)
+            tk.Button(row, text="清除", command=lambda k=key: self._set_ui_color(k, "")).pack(side="right", padx=2)
+            self._color_swatches[key] = sw
+        tk.Button(frm, text="全部恢复默认", command=self._reset_ui_colors).pack(anchor="w", padx=4, pady=4)
+        self._refresh_color_swatches()
+
         btns = tk.Frame(frm)
         btns.pack(fill="x", pady=14)
         tk.Button(btns, text="保存", command=self._save_settings).pack(side="left", padx=4)
@@ -1108,8 +1141,13 @@ class PetApp:
         self.cfg["tts"]["backend"] = self._var["tts_backend"].get().strip() or "edge"
         self.cfg["tts"]["gpt_sovits_url"] = self._var["gsv_url"].get().strip() or "http://127.0.0.1:9881"
         self.cfg["tts"]["voice"] = self._var["voice"].get().strip() or "zh-CN-XiaoyiNeural"
-        self.cfg["tts"]["japanese"] = bool(self._var["tts_japanese"].get())
+        _lang = (self._var["tts_language"].get() or "zh").strip().lower()
+        if _lang not in ("zh", "ja", "en"):
+            _lang = "zh"
+        self.cfg["tts"]["language"] = _lang
+        self.cfg["tts"]["japanese"] = (_lang == "ja")  # 兼容旧字段
         self.cfg["tts"]["jp_voice"] = self._var["jp_voice"].get().strip() or "ja-JP-NanamiNeural"
+        self.cfg["tts"]["en_voice"] = self._var["en_voice"].get().strip() or "en-US-AriaNeural"
         self.cfg["tts"]["rate"] = int(self._var["tts_rate"].get())
         self.cfg["tts"]["pitch"] = int(self._var["tts_pitch"].get())
         self.cfg["tts"]["speak_mode"] = (
@@ -1199,6 +1237,8 @@ class PetApp:
         self._screen_attach.set(self.cfg["screen_reading"].get("attach_to_msg", False))
         self.cfg["dark_mode"] = bool(self._var["dark_mode"].get())
         self.cfg["ui_opacity"] = max(0.78, min(1.0, float(self._var["ui_opacity"].get())))
+        self.cfg["ui_colors"] = {k: v for k, v in (getattr(self, "_ui_colors", None) or {}).items()
+                                 if str(v or "").strip()}
         config_mod.save_config(self.cfg)
         self.client = self._make_client()
         self._rebuild_character()
@@ -1290,10 +1330,48 @@ class PetApp:
         for win in (getattr(self, "chat_win", None), getattr(self, "set_win", None)):
             if win is not None:
                 frost.apply_window(win, dark, opacity=opacity)
+
+    # ---------- 界面配色自定义 ----------
+    def _pick_ui_color(self, key):
+        from tkinter import colorchooser
+        current = str((getattr(self, "_ui_colors", None) or {}).get(key, "") or "").strip() or None
+        try:
+            _rgb, hex_value = colorchooser.askcolor(color=current, parent=self.set_win)
+        except Exception:
+            hex_value = None
+        if hex_value:
+            self._set_ui_color(key, hex_value)
+
+    def _set_ui_color(self, key, value):
+        if getattr(self, "_ui_colors", None) is None:
+            self._ui_colors = {}
+        self._ui_colors[key] = str(value or "").strip()
+        self._refresh_color_swatches()
+
+    def _reset_ui_colors(self):
+        self._ui_colors = {}
+        self._refresh_color_swatches()
+
+    def _refresh_color_swatches(self):
+        base = dict(DARK_THEME if self.cfg.get("dark_mode", False) else LIGHT_THEME)
+        for key, swatch in getattr(self, "_color_swatches", {}).items():
+            color = str((getattr(self, "_ui_colors", None) or {}).get(key, "") or "").strip()
+            if not color:
+                color = base.get(key, "#888888")
+            try:
+                swatch.configure(bg=color)
+            except tk.TclError:
+                pass
+
     # ---------- 主题 ----------
     def _apply_theme(self):
         dark = bool(self.cfg.get("dark_mode", False))
-        c = DARK_THEME if dark else LIGHT_THEME
+        c = dict(DARK_THEME if dark else LIGHT_THEME)
+        # 自定义配色覆盖（留空 = 用主题默认）
+        for _key, _value in (self.cfg.get("ui_colors") or {}).items():
+            _value = str(_value or "").strip()
+            if _key in c and _value:
+                c[_key] = _value
 
         style = ttk.Style()
         if dark:
@@ -1336,6 +1414,10 @@ class PetApp:
                 lbl.configure(fg=color)
             except tk.TclError:
                 pass
+
+        # 主题切换后同步刷新设置里的色块预览（此时设置窗口可能还没建好）
+        if getattr(self, "_color_swatches", None):
+            self._refresh_color_swatches()
 
     def _color_win(self, win, c):
         try:
@@ -1518,52 +1600,45 @@ class PetApp:
         if force_chinese:
             self._do_speak(text, tcfg["voice"], intense=intense, spoken_text=spoken_text)
             return
+        lang = _tts_language(tcfg)
+        if lang == "zh" or not self.client:
+            self._do_speak(text, tcfg["voice"], intense=intense)
+        else:
+            threading.Thread(target=self._speak_translated,
+                             args=(text, lang, intense), daemon=True).start()
+
+    def _speak_translated(self, text, lang, intense=False):
+        """配音语言为 ja/en 时：先把中文翻译成目标语言，再合成（回复文字仍为中文）。"""
+        tcfg = self.cfg["tts"]
+        translated = translator.translate_to(self.client, text, lang)
+        if not translated:
+            self._do_speak(text, tcfg["voice"], intense=intense)
+            return
+        spoken = translated if lang == "en" else self._anime_voice(text, translated)
+        btext = self._pick_bubble_text(text, spoken)
         if tcfg.get("backend") == "gpt_sovits":
-            if tcfg.get("japanese") and self.client:
-                threading.Thread(target=self._speak_japanese_gsv, args=(text, intense), daemon=True).start()
+            base_speed = max(0.5, min(1.5, 1.0 + _to_int(tcfg.get("rate", 0)) / 100.0))
+            speed = 0.8 if intense else base_speed
+            pitch = -1.0 if intense else float(_to_int(tcfg.get("pitch", 0)))
+            if tcfg.get("speak_mode") == "delayed":
+                self._show_bubble(btext)
+                on_play = None
             else:
-                self._do_speak(text, tcfg["voice"], intense=intense)
-        elif tcfg.get("japanese") and self.client:
-            threading.Thread(target=self._speak_japanese, args=(text, intense), daemon=True).start()
-        else:
-            self._do_speak(text, tcfg["voice"], intense=intense)
-
-    def _speak_japanese(self, text, intense=False):
-        tcfg = self.cfg["tts"]
-        ja = translator.translate_to_japanese(self.client, text)
-        if not ja:
-            self._do_speak(text, tcfg["voice"], intense=intense)
+                on_play = lambda bt=btext: self._q.put(("tts_play", bt))
+            tts.speak_gpt_sovits(
+                spoken, tcfg.get("gpt_sovits_url", "http://127.0.0.1:9881"),
+                text_lang=lang,
+                speed_factor=speed,
+                pitch_semitones=pitch,
+                delay=self._speak_delay(tcfg),
+                on_play=on_play,
+                on_level=lambda level: self._q.put(("mouth_level", level)),
+                on_done=lambda: self._q.put(("tts_done", None)),
+            )
             return
-        ja = self._anime_voice(text, ja)
-        self._do_speak(ja, tcfg.get("jp_voice", "ja-JP-NanamiNeural"),
-                       bubble_text=self._pick_bubble_text(text, ja), intense=intense)
-
-    def _speak_japanese_gsv(self, text, intense=False):
-        tcfg = self.cfg["tts"]
-        ja = translator.translate_to_japanese(self.client, text)
-        if not ja:
-            self._do_speak(text, tcfg["voice"], intense=intense)
-            return
-        ja = self._anime_voice(text, ja)
-        btext = self._pick_bubble_text(text, ja)
-        base_speed = max(0.5, min(1.5, 1.0 + _to_int(tcfg.get("rate", 0)) / 100.0))
-        speed = 0.8 if intense else base_speed
-        pitch = -1.0 if intense else float(_to_int(tcfg.get("pitch", 0)))
-        if tcfg.get("speak_mode") == "delayed":
-            self._show_bubble(btext)
-            on_play = None
-        else:
-            on_play = lambda bt=btext: self._q.put(("tts_play", bt))
-        tts.speak_gpt_sovits(
-            ja, tcfg.get("gpt_sovits_url", "http://127.0.0.1:9881"),
-            text_lang="ja",
-            speed_factor=speed,
-            pitch_semitones=pitch,
-            delay=self._speak_delay(tcfg),
-            on_play=on_play,
-            on_level=lambda level: self._q.put(("mouth_level", level)),
-            on_done=lambda: self._q.put(("tts_done", None)),
-        )
+        voice = (tcfg.get("jp_voice", "ja-JP-NanamiNeural") if lang == "ja"
+                 else tcfg.get("en_voice", "en-US-AriaNeural"))
+        self._do_speak(spoken, voice, bubble_text=btext, intense=intense)
 
     def _anime_voice(self, original, spoken):
         """动漫式读法：始终 勇太→ユータ；检测到动漫台词时再做整句/词替换。"""
