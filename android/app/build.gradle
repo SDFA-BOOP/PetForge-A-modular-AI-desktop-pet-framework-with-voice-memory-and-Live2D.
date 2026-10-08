@@ -1,0 +1,34 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.rikka.live2ddemo'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.rikka.live2ddemo"
+        minSdk 24
+        targetSdk 34
+        versionCode 27
+        versionName "1.27"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            shrinkResources false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+}

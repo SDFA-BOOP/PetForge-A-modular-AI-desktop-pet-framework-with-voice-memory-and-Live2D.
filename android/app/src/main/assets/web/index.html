@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <title>六花 Live2D 人脸跟随 Demo</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="stage"></canvas>
+  <div id="status">v1.27 正在启动…</div>
+  <div id="character-bubble" class="character-bubble" hidden></div>
+  <div id="camera-panel">
+    <video id="camera" playsinline muted autoplay></video>
+    <span>人脸追踪</span>
+  </div>
+
+  <button id="motion-open" class="settings-fab" type="button" aria-label="打开设置">⚙</button>
+  <button id="chat-open" class="chat-fab" type="button" aria-label="打开聊天">💬</button>
+
+  <section id="motion-page" class="motion-page" hidden>
+    <div class="motion-card" role="dialog" aria-modal="true" aria-labelledby="motion-title">
+      <div class="motion-head">
+        <div>
+          <h2 id="motion-title">设置</h2>
+          <p>所有修改实时生效，设置会自动保存</p>
+        </div>
+        <button id="motion-close" class="motion-close" type="button">关闭</button>
+      </div>
+      <div class="motion-content">
+        <button id="orientation-open" class="orientation-open-button" type="button">横竖屏设置</button>
+        <button id="voice-open" class="orientation-open-button" type="button">语音微调</button>
+
+        <label class="motion-control" for="dark-toggle">
+          <span><span>深色背景</span><input id="dark-toggle" type="checkbox"></span>
+        </label>
+
+        <div class="motion-control">
+          <span><span>电脑桥接地址</span><output id="bridge-status">未连接</output></span>
+          <input id="bridge-url" class="text-input" type="text" inputmode="url" autocomplete="off" placeholder="http://电脑IP:8765">
+          <button id="bridge-test" class="bridge-test-button" type="button">测试连接</button>
+        </div>
+
+        <label class="motion-control" for="direct-mode">
+          <span><span>手机直连 API</span><input id="direct-mode" type="checkbox"></span>
+        </label>
+        <label class="motion-control" for="local-voice">
+          <span><span>本地语音（GPT-SoVITS）</span><input id="local-voice" type="checkbox" checked></span>
+        </label>
+        <div class="motion-control">
+          <span><span>GPT-SoVITS 状态</span><output id="gsv-status" class="gsv-status busy">加载中…</output></span>
+        </div>
+        <button id="memory-clear" class="bridge-test-button" type="button">清空聊天记忆</button>
+        <div class="motion-control">
+          <span><span>API Key</span></span>
+          <div class="paste-row">
+            <input id="api-key" class="text-input" type="password" autocomplete="off" placeholder="sk-...">
+            <button id="api-key-paste" class="paste-button" type="button">粘贴</button>
+          </div>
+        </div>
+        <label class="motion-control">
+          <span><span>API 地址</span></span>
+          <input id="api-base" class="text-input" type="text" autocomplete="off" placeholder="https://api.deepseek.com">
+        </label>
+        <label class="motion-control">
+          <span><span>模型</span></span>
+          <input id="api-model" class="text-input" type="text" autocomplete="off" placeholder="deepseek-chat">
+        </label>
+        <label class="motion-control">
+          <span><span>视觉模型</span></span>
+          <input id="vision-model" class="text-input" type="text" autocomplete="off" placeholder="deepseek-v4-flash-vision-exp">
+        </label>
+
+        <label class="motion-control">
+          <span><span>人物大小</span><output id="character-scale-value">1.00×</output></span>
+          <input id="character-scale" type="range" min="0.55" max="1.65" step="0.05" value="1">
+        </label>
+        <label class="motion-control">
+          <span><span>水平位置</span><output id="character-x-value">0.00</output></span>
+          <input id="character-x" type="range" min="-0.35" max="0.35" step="0.01" value="0">
+        </label>
+        <label class="motion-control">
+          <span><span>垂直位置</span><output id="character-y-value">0.00</output></span>
+          <input id="character-y" type="range" min="-0.35" max="0.35" step="0.01" value="0">
+        </label>
+
+        <label class="motion-control">
+          <span><span>整体幅度</span><output id="motion-amplitude-value">1.00×</output></span>
+          <input id="motion-amplitude" type="range" min="0.2" max="2" step="0.05" value="1">
+        </label>
+        <label class="motion-control">
+          <span><span>动作速度</span><output id="motion-speed-value">1.00×</output></span>
+          <input id="motion-speed" type="range" min="0.2" max="2.5" step="0.05" value="1">
+        </label>
+        <label class="motion-control">
+          <span><span>头部跟随</span><output id="motion-follow-value">1.00×</output></span>
+          <input id="motion-follow" type="range" min="0" max="2" step="0.05" value="1">
+        </label>
+        <label class="motion-control">
+          <span><span>待机摆动</span><output id="motion-idle-value">1.00×</output></span>
+          <input id="motion-idle" type="range" min="0" max="2" step="0.05" value="1">
+        </label>
+        <label class="motion-control">
+          <span><span>呼吸 / 嘴部</span><output id="motion-breath-value">1.00×</output></span>
+          <input id="motion-breath" type="range" min="0" max="2" step="0.05" value="1">
+        </label>
+
+        <button id="motion-reset" class="motion-reset" type="button">恢复全部默认</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="orientation-page" class="motion-page" hidden>
+    <div class="motion-card orientation-card" role="dialog" aria-modal="true" aria-labelledby="orientation-title">
+      <div class="motion-head">
+        <div>
+          <h2 id="orientation-title">横竖屏设置</h2>
+          <p>独立控制显示方向和横屏大头模式</p>
+        </div>
+        <button id="orientation-close" class="motion-close" type="button">返回</button>
+      </div>
+      <div class="orientation-content">
+        <div class="motion-control">
+          <span><span>当前模式</span><output id="mode-value">竖屏 · 全身</output></span>
+          <div class="mode-switch">
+            <button id="mode-portrait" class="mode-button active" type="button">竖屏</button>
+            <button id="mode-landscape" class="mode-button" type="button">横屏 · 大头</button>
+          </div>
+        </div>
+        <p class="orientation-hint">横屏会锁定 Activity 方向并使用 1.85× 大头布局。</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="voice-page" class="motion-page" hidden>
+    <div class="motion-card orientation-card" role="dialog" aria-modal="true" aria-labelledby="voice-title">
+      <div class="motion-head">
+        <div>
+          <h2 id="voice-title">语音微调</h2>
+          <p>本地 GPT-SoVITS 配音的语速、音量、音调</p>
+        </div>
+        <button id="voice-close" class="motion-close" type="button">返回</button>
+      </div>
+      <div class="orientation-content">
+        <label class="motion-control">
+          <span><span>语速</span><output id="voice-speed-value">1.00×</output></span>
+          <input id="voice-speed" type="range" min="0.5" max="2" step="0.05" value="1">
+        </label>
+        <label class="motion-control">
+          <span><span>音量</span><output id="voice-volume-value">100%</output></span>
+          <input id="voice-volume" type="range" min="0" max="100" step="5" value="100">
+        </label>
+        <label class="motion-control">
+          <span><span>音调</span><output id="voice-pitch-value">0</output></span>
+          <input id="voice-pitch" type="range" min="-12" max="12" step="1" value="0">
+        </label>
+        <label class="motion-control">
+          <span><span>去电音</span><output id="voice-deelect-value">0%</output></span>
+          <input id="voice-deelect" type="range" min="0" max="100" step="5" value="0">
+        </label>
+        <button id="voice-reset" class="motion-reset" type="button">恢复默认</button>
+      </div>
+    </div>
+  </section>
+  <section id="chat-panel" class="chat-panel" hidden>
+    <div class="chat-card" role="dialog" aria-modal="true" aria-labelledby="chat-title">
+      <div class="chat-head">
+        <div>
+          <strong id="chat-title">和六花聊天</strong>
+          <span id="chat-status">未连接电脑</span>
+        </div>
+        <button id="chat-close" class="motion-close" type="button">关闭</button>
+      </div>
+      <div id="chat-messages" class="chat-messages">
+        <div class="chat-bubble system">先在设置里填写电脑桥接地址，然后就可以聊天了。</div>
+      </div>
+      <label class="chat-voice-row" for="chat-voice">
+        <input id="chat-voice" type="checkbox" checked>
+        <span>接收电脑生成的语音</span>
+      </label>
+      <label class="chat-voice-row" for="chat-mic-always">
+        <input id="chat-mic-always" type="checkbox">
+        <span>麦克风常开（自动断句发送）</span>
+      </label>
+      <div id="mic-meter" class="mic-meter" aria-label="麦克风音量">
+        <span id="mic-meter-fill"></span>
+      </div>
+      <div id="tts-progress" class="tts-progress" hidden>
+        <div id="tts-progress-text" class="tts-progress-text">配音中…</div>
+        <div class="tts-progress-bar"><span id="tts-progress-fill"></span></div>
+      </div>
+      <form id="chat-form" class="chat-form">
+        <button id="chat-camera" class="chat-camera" type="button" aria-label="拍照上传">📷</button>
+        <button id="chat-mic" class="chat-mic" type="button" aria-label="语音输入">🎤</button>
+        <input id="chat-input" type="text" autocomplete="off" placeholder="对六花说点什么…">
+        <button id="chat-send" type="submit">发送</button>
+      </form>
+    </div>
+  </section>
+  <section id="photo-caption-dialog" class="modal-page" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="photo-caption-title">
+      <h3 id="photo-caption-title">给照片配文</h3>
+      <img id="photo-caption-image" class="chat-image" alt="拍摄的照片">
+      <input id="photo-caption-input" type="text" autocomplete="off" placeholder="写一句话发给六花…">
+      <div class="modal-actions">
+        <button id="photo-caption-skip" type="button">跳过</button>
+        <button id="photo-caption-send" type="button">发送给六花</button>
+      </div>
+    </div>
+  </section>
+  <script src="lib/pixi.min.js"></script>
+  <script src="lib/live2dcubismcore.min.js"></script>
+  <script src="lib/cubism4.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+# Normalize line endings (avoid cross-platform diff noise)
+* text=auto eol=lf
+
+# Windows batch files keep CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary files (no EOL conversion)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.wasm binary
+*.moc3 binary
+*.so binary
+*.dll binary
+*.exe binary
+*.mp3 binary
+*.wav binary
+*.onnx binary
+*.zip binary
+*.apk binary
+
+# GitHub language hints
+*.py     linguist-language=Python
+*.java   linguist-language=Java
+*.rs     linguist-language=Rust
+*.js     linguist-language=JavaScript
+*.gradle linguist-language=Groovy

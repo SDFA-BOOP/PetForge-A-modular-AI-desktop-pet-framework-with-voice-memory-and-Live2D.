@@ -1,0 +1,72 @@
+[package]
+name = "gpt-sovits-onnx-rs"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["rlib"] # Supports rlib  outputs
+
+[[example]]
+name = "gpt_sovits_demo_jni"
+crate-type = ["cdylib"] # cdylib
+required-features = ["jni"]
+
+
+[dependencies]
+ort = { version = "=2.0.0-rc.10", default-features = false, features = [
+    "std",
+    "ndarray",
+    "half",
+    "load-dynamic",
+] }
+arpabet = "2.0.0"
+jieba-rs = "0.7.2"
+ndarray = "0.16.1"
+pinyin = "0.10.0"
+log = "0.4.25"
+hound = "3.5.1"
+half = "2.6.0"
+anyhow = "1.0.86"
+fancy-regex = "0.14.0"
+futures = "0.3"
+async-stream = "0.3"
+tokio = { version = "1.45.1", features = ["full"] }
+env_logger = "0.10"
+serde_json = "1.0"
+num2en = "1.0.0"
+serde = { version = "1.0", features = ["derive"] }
+lazy_static = "1.5.0"
+pest = "2.7"
+pest_derive = "2.7"
+tokenizers = { version = "0.20.0", default-features = false, features = [
+    "onig",
+] }
+jpreprocess = { version = "0.15", features = ["naist-jdic"] }
+jni = { version = "0.21", optional = true }
+once_cell = "1.21.3"
+clap = { version = "4.5", features = ["derive"] }
+rustfft = "6.2.0"
+rand = "0.9.1"
+smallvec = "1.15"
+regex = "1.11"
+[features]
+jni = ["dep:jni"] # Enables JNI and dynamic ONNX loading for Android
+
+[target.'cfg(target_os = "android")'.dependencies]
+ort = { version = "=2.0.0-rc.10", default-features = false, features = [
+    "std",
+    "ndarray",
+    "half",
+    "load-dynamic",
+] }
+android_logger = "0.15"
+
+
+
+
+
+
+
+[patch.crates-io]
+jpreprocess-naist-jdic = { path = "../vendor/jpreprocess-naist-jdic" }
+

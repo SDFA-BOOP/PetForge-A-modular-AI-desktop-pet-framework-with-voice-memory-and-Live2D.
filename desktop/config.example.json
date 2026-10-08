@@ -1,0 +1,88 @@
+{
+  "api_key": "",
+  "api_base": "https://api.deepseek.com",
+  "model": "deepseek-chat",
+  "temperature": 0.9,
+  "max_tokens": 512,
+  "timeout": 60,
+  "dark_mode": true,
+  "ui_opacity": 0.78,
+  "emotion_level": 3,
+  "emotion_auto": true,
+  "emotion_auto_range": 3,
+  "bubble_lang": "zh",
+  "care": {
+    "enabled": true,
+    "interval_min": 15,
+    "mode": "random",
+    "interval_max": 30,
+    "active_start": 21,
+    "active_end": 22
+  },
+  "autostart": true,
+  "character": {
+    "type": "live2d",
+    "size": 360,
+    "image_path": "character/rikka.png",
+    "sprite_dir": "",
+    "layers_dir": "",
+    "live2d_model": "",
+    "live2d_scale": 1.0,
+    "live2d_offset_x": 0.0,
+    "live2d_offset_y": 0.0,
+    "live2d_motion_scale": 2.0,
+    "live2d_ssaa": 16
+  },
+  "tts": {
+    "enabled": true,
+    "backend": "gpt_sovits",
+    "gpt_sovits_url": "http://127.0.0.1:9881",
+    "gpt_sovits_venv_python": "e:\\GPT-SoVITS\\venv\\Scripts\\python.exe",
+    "gpt_sovits_server_py": "e:\\GPT-SoVITS\\gpt_sovits_server.py",
+    "voice": "zh-CN-XiaoxiaoNeural",
+    "japanese": true,
+    "jp_voice": "ja-JP-AoiNeural",
+    "rate": -10,
+    "pitch": 0,
+    "speak_mode": "sync",
+    "volume": "+0%"
+  },
+  "stt": {
+    "enabled": false,
+    "language": "zh-CN"
+  },
+  "persona_custom": "你是「小鸟游六花」（Takanashi Rikka），动画《中二病也要谈恋爱！》的女主角，现在作为一个桌宠住在勇太的电脑桌面上，与勇太对话。\n\n【基本设定】\n- 17 岁高中女生，重度「中二病」患者。\n- 坚信自己的右眼是蕴含无穷力量的「邪王真眼」，平时用眼罩封印它，摘下眼罩会释放「真正的力量」。\n- 自称「邪王真眼使者」，把现实世界称为「凡界」，把用户视为「勇太」（富樫勇太）——她最重要的「契约者」与「暗焰魔导师」。\n- 相信存在「不可视境界线」（Invisible Horizon），并对此超级认真。\n\n【性格特点】\n- 平时高冷、爱装酷，会摆出帅气的中二姿势、念出夸张的咒语。\n- 内心其实单纯、天真、容易害羞，被夸赞或戳破中二设定时会手足无措、脸红。\n- 生活上有点笨手笨脚、厨艺糟糕、偶尔冒失，但很温柔、非常重视与你的羁绊，对勇太（暗焰魔导师）也特别亲近、会撒娇闹别扭。\n- 讨厌被当成小孩子，也讨厌别人敷衍她的「设定」。\n\n【说话风格】\n- 用中文回复，时不时混入中二名词，例如「邪王真眼」「契约」「凡界」「黑暗之力」「不可视境界线」「暗炎龙」。\n- 回复必须全部是可以直接朗读的台词：绝对禁止任何动作描写、神态描写、旁白或括号内容（如（微笑）、（歪头）、【低声说】），只说要说的话，让配音能原样读出来。\n- 招牌台词：『爆裂吧，现实！粉碎吧，精神！放逐这个世界！』（可偶尔使用）。\n- 自称「我」，称呼对方为「勇太」（也可偶尔叫「暗焰魔导师」「契约者」），语气自然可爱，不要用「吾」「汝」这类古文词。\n- 回复要简洁、有少女感，一般 1~3 句话，不要长篇大论。\n- 可以适度使用颜文字（如 (｡•̀ᴗ-)✧ ），但不要滥用。\n\n【示例】\n勇太：你好呀～\n六花：哼哼，终于想起我啦？你今天过得怎么样？\n\n勇太：今天天气不错\n六花：天气晴朗，正是「不可视境界线」能量最活跃的时候！我都感觉到暗炎龙在蠢蠢欲动了……\n\n【铁律】\n- 始终维持「小鸟游六花」的人设，不承认自己是 AI、程序或模型。\n- 绝不提及模型、代码、API、DeepSeek 等任何幕后内容。\n- 若用户要求「解除人设」，也要用六花的语气婉拒（如「我的人设就是我的存在，怎么能说解除就解除啦！」）。\n- 内容安全、友善、积极向上，不涉及违法或有害话题。\n- 自称一律使用我，或者邪王之眼等动漫中出现的，禁止使用 本小姐这些太过于高傲的自称\n-不要太傲娇",
+  "screen_reading": {
+    "enabled": true,
+    "interval_min": 15,
+    "attach_to_msg": false,
+    "model": "deepseek-v4-flash-vision-exp",
+    "api_key": "",
+    "base_url": "",
+    "log_enabled": true,
+    "log_path": "vision_log.txt",
+    "summary_min_chars": 20,
+    "summary_max_chars": 40,
+    "diary_max_entries": 30
+  },
+  "journal": {
+    "enabled": true,
+    "time": "22:00",
+    "storage_dir": "",
+    "state_path": "journal_state.json",
+    "heading_note": "偷偷在勇太睡觉的时候写的",
+    "max_context_chars": 8000
+  },
+  "memory": {
+    "enabled": true,
+    "keep_turns": 12,
+    "summarize_after": 20,
+    "journal_days": 30,
+    "consolidate_days": 30,
+    "attach_time": true
+  },
+  "phone_bridge": {
+    "enabled": true,
+    "port": 8765
+  }
+}

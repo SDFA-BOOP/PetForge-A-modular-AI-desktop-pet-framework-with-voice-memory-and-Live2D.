@@ -1,0 +1,11 @@
+requests>=2.31
+edge-tts>=6.1
+pygame>=2.5
+SpeechRecognition>=3.10
+pyaudio>=0.2.14
+Pillow>=10.0
+zhdate>=0.1
+live2d-py>=0.7.0
+pyopengltk>=0.0.3
+PyOpenGL>=3.1.10
+

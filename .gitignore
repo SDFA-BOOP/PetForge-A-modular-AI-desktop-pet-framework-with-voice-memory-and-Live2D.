@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# 运行时数据（含隐私，勿提交）
+config.json
+memory.db
+*.log
+vision_log.txt
+journal_state.json
+holiday_schedule.json
+phone_memory_sync.json
+.started
+phone_bridge_audio/
+uploads/
+GPT-SoVITS/
+
+# 训练模型 / 导出模型（大文件）
+*.onnx
+*.ckpt
+*.pth
+Ai小鸟游六花 GPT模型/
+
+# 安卓构建产物
+android/app/build/
+android/build/
+android/.gradle/
+android/app/src/main/jniLibs/
+android/app/src/main/assets/tts/
+android/local.properties
+*.apk
+*.aab
+
+# Rust 构建产物
+engine/**/target/
+engine/**/jniLibs/
+engine/**/jniLibs24/
+
+# 系统 / 编辑器
+.DS_Store
+Thumbs.db
+.idea/
+*.iml
+
+# 用户本地角色素材（不入库，仅保留说明 README）
+desktop/character/*
+!desktop/character/README.md
+android/app/src/main/assets/web/model/*
+!android/app/src/main/assets/web/model/README.md
