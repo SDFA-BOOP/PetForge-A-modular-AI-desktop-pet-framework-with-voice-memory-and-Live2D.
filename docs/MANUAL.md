@@ -41,7 +41,7 @@ Live2D 模型靠“参数 ID + 数值”来驱动表情与动作。本项目把�
 | `angle_y` | `ParamAngleY` | 头部上下 | -16 ~ 16 |
 | `angle_z` | `ParamAngleZ` | 头部倾斜 | 约 -2.6 ~ 2.6 |
 
-> 电脑端在 `desktop/rikka/character/live2d.py` 的 `PARAMETER_MAP`；
+> 电脑端在 `desktop/petforge/character/live2d.py` 的 `PARAMETER_MAP`；
 > 安卓端在 `android/app/src/main/assets/web/app.js` 的 `setParameter(...)` 调用处。
 
 ---
@@ -50,7 +50,7 @@ Live2D 模型靠“参数 ID + 数值”来驱动表情与动作。本项目把�
 
 ### 3.1 电脑端（推荐）
 
-编辑 `desktop/rikka/character/live2d.py` 顶部的 `PARAMETER_MAP`：
+编辑 `desktop/petforge/character/live2d.py` 顶部的 `PARAMETER_MAP`：
 
 ```python
 PARAMETER_MAP = {
@@ -103,10 +103,10 @@ setParameter('Param2', -1.0 * amplitude * idleGain * Math.sin(phase * Math.PI * 
 
 ### 4.1 电脑端 `register_action`
 
-`desktop/rikka/character/live2d.py` 提供了 `register_action()`：
+`desktop/petforge/character/live2d.py` 提供了 `register_action()`：
 
 ```python
-from rikka.character.live2d import register_action
+from petforge.character.live2d import register_action
 ```
 
 回调签名：`func(widget, t, dt, now)`
@@ -122,7 +122,7 @@ from rikka.character.live2d import register_action
 
 ```python
 import math
-from rikka.character.live2d import register_action
+from petforge.character.live2d import register_action
 
 def breath_extra(widget, t, dt, now):
     # 注意：参数 ID 需先加入 PARAMETER_MAP，或直接用 bind("实际参数ID", ...)
@@ -175,7 +175,7 @@ AI 可以在回复**末尾**附带一个标签来触发表情或动作，标签�
 在桌宠根目录新建 `user_actions.py`（示例见 `desktop/user_actions.py`）：
 
 ```python
-from rikka.actions import register_action
+from petforge.actions import register_action
 
 @register_action("wave")
 def wave(char, direction=1):
@@ -203,7 +203,7 @@ def nod(char, direction=1):
 
 ### 5.3 实现说明
 
-- 解析逻辑在 `desktop/rikka/actions.py`（`parse_action` / `dispatch` / `register_action`）。
+- 解析逻辑在 `desktop/petforge/actions.py`（`parse_action` / `dispatch` / `register_action`）。
 - 标签必须位于回复末尾；标签文本会从聊天窗、记忆、配音里全部剥离。
 - 提示词里的动作说明（`persona.ACTION_HINT`）会**自动附加到系统提示词**，即使你使用了自定义人设（`persona_custom`）也会生效。
 

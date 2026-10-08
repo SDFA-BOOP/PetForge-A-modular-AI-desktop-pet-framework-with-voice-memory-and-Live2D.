@@ -475,11 +475,11 @@ public class MainActivity extends Activity {
             public void run() {
                 try {
                     File modelDir = copyGsvAssets();
-                    String vits = new File(modelDir, "rikka_vits.onnx").getAbsolutePath();
+                    String vits = new File(modelDir, "vits.onnx").getAbsolutePath();
                     String ssl = new File(modelDir, "ssl.onnx").getAbsolutePath();
-                    String enc = new File(modelDir, "rikka_t2s_encoder.onnx").getAbsolutePath();
-                    String fsdec = new File(modelDir, "rikka_t2s_fs_decoder.onnx").getAbsolutePath();
-                    String sdec = new File(modelDir, "rikka_t2s_s_decoder.onnx").getAbsolutePath();
+                    String enc = new File(modelDir, "t2s_encoder.onnx").getAbsolutePath();
+                    String fsdec = new File(modelDir, "t2s_fs_decoder.onnx").getAbsolutePath();
+                    String sdec = new File(modelDir, "t2s_s_decoder.onnx").getAbsolutePath();
                     String ref = new File(modelDir, "ref.wav").getAbsolutePath();
                     long h = com.example.gpt_sovits_demo.MainActivity.initModel("", vits, ssl, enc, fsdec, sdec, "", 24);
                     if (h == 0) throw new RuntimeException("model init failed");
@@ -941,7 +941,7 @@ public class MainActivity extends Activity {
                         socket.receive(p);
                         String json = new String(p.getData(), 0, p.getLength(), StandardCharsets.UTF_8);
                         JSONObject o = new JSONObject(json);
-                        if ("rikka-phone-bridge".equals(o.optString("service"))) {
+                        if ("petforge-phone-bridge".equals(o.optString("service"))) {
                             int port = o.optInt("port", 8765);
                             String ip = p.getAddress().getHostAddress();
                             onBridgeDiscovered(ip, port);

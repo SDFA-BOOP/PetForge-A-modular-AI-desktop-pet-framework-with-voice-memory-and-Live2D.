@@ -10,7 +10,7 @@ except ImportError:  # 非 Windows 环境
     winreg = None
 
 RUN_KEY = r"Software\Microsoft\Windows\CurrentVersion\Run"
-VALUE_NAME = "RikkaPet"
+VALUE_NAME = "PetForge"
 
 
 def _app_root() -> str:

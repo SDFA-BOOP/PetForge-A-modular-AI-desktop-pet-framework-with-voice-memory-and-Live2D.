@@ -5,7 +5,7 @@ import json
 import os
 from pathlib import Path
 
-# 项目根目录（rikka/ 的上一级）
+# 项目根目录（petforge/ 的上一级）
 BASE_DIR = Path(__file__).resolve().parent.parent
 CONFIG_PATH = BASE_DIR / "config.json"
 MEMORY_DB_PATH = BASE_DIR / "memory.db"
@@ -157,10 +157,10 @@ def load_config() -> dict:
             cfg = _deep_merge(cfg, user_cfg)
         except Exception:
             pass
-    test_type = os.environ.get("RIKKA_TEST_CHARACTER_TYPE", "").strip()
+    test_type = os.environ.get("PETFORGE_TEST_CHARACTER_TYPE", "").strip()
     if test_type:
         cfg["character"]["type"] = test_type
-    test_layers = os.environ.get("RIKKA_TEST_CHARACTER_LAYERS", "").strip()
+    test_layers = os.environ.get("PETFORGE_TEST_CHARACTER_LAYERS", "").strip()
     if test_layers:
         cfg["character"]["layers_dir"] = test_layers
 

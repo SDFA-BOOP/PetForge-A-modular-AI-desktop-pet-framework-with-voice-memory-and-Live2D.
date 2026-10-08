@@ -4,6 +4,9 @@
 
 一个可复用的 AI 桌宠框架：**套上任意角色**（Live2D / 立绘 / 精灵图），即可获得 AI 语音对话、长期记忆、动作系统与多端同步。
 
+> **由来**：这个项目最初是为动画角色「小鸟游六花」（《中二病也要谈恋爱！》）打造的桌宠，
+> 后来抽离成通用框架。仓库里保留的默认人设（`persona`）与示例配置仍是六花，可自行替换成任何角色。
+
 > 本项目为「框架 + 示例」，训练好的语音模型、API Key、运行时数据等均未包含，需要自行准备。
 
 ## 特性
@@ -22,7 +25,7 @@ PetForge/
 ├── desktop/                 # 电脑端桌宠（Python）
 │   ├── main.py              # 入口
 │   ├── phone_bridge.py      # 手机桥接服务（局域网 HTTP + UDP 自动发现 + 记忆同步）
-│   ├── rikka/               # 核心包（可整体重命名）
+│   ├── petforge/            # 核心包（框架内核）
 │   ├── character/           # 角色素材目录（需自行放入，见其中 README）
 │   ├── user_actions.py      # 用户自定义 AI 动作示例
 │   └── config.example.json  # 配置示例（去掉密钥）
@@ -59,7 +62,7 @@ PetForge/
 ## 给它换个角色
 
 1. 准备角色资源（Live2D `.model3.json` 或立绘 PNG）。
-2. 在角色渲染里通过 `register_model` 接入（参考 `desktop/rikka/character/`）。
+2. 在角色渲染里通过 `register_model` 接入（参考 `desktop/petforge/character/`）。
 3. 换掉人设提示词（`persona`）与 `config.json` 里的角色配置即可。
 
 ## 一键训练自己的音色模型

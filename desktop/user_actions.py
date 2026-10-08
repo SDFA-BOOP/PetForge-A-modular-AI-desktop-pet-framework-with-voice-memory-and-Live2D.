@@ -20,7 +20,7 @@ AI 在回复末尾附加 [动作:动作名] 即可触发对应函数。
 """
 from __future__ import annotations
 
-from rikka.actions import register_action
+from petforge.actions import register_action
 
 
 # 示例 1：挥手动作（触发角色模型内置动作）

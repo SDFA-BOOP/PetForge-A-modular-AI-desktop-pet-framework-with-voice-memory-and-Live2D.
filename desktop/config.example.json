@@ -23,7 +23,7 @@
   "character": {
     "type": "live2d",
     "size": 360,
-    "image_path": "character/rikka.png",
+    "image_path": "character/my_character.png",
     "sprite_dir": "",
     "layers_dir": "",
     "live2d_model": "",

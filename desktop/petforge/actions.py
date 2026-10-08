@@ -9,7 +9,7 @@
 
 用户自定义动作：见项目根目录的 user_actions.py 示例，或在任意模块里调用：
 
-    from rikka.actions import register_action
+    from petforge.actions import register_action
 
     @register_action("wave")
     def wave(char, direction=1):
@@ -124,7 +124,7 @@ def load_user_actions(root_dir: str | Path | None = None):
     用户把自定义动作写在该文件里，桌宠启动时即被注册。
     """
     if root_dir is None:
-        # 默认取本文件上一级（rikka/）的上一级（项目根目录）
+        # 默认取本文件上一级（petforge/）的上一级（项目根目录）
         root_dir = Path(__file__).resolve().parents[1]
     user_file = Path(root_dir) / "user_actions.py"
     if user_file.is_file():

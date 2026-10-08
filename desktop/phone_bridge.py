@@ -26,12 +26,12 @@ from urllib.parse import unquote, urlparse
 BASE_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(BASE_DIR))
 
-import rikka.anime_voice as anime_voice
-import rikka.config as config_mod
-import rikka.persona as persona
-import rikka.translator as translator
-import rikka.tts as tts
-from rikka.ai_client import DeepSeekClient, describe_screen
+import petforge.anime_voice as anime_voice
+import petforge.config as config_mod
+import petforge.persona as persona
+import petforge.translator as translator
+import petforge.tts as tts
+from petforge.ai_client import DeepSeekClient, describe_screen
 
 AUDIO_DIR = BASE_DIR / "phone_bridge_audio"
 UPLOAD_DIR = BASE_DIR / "uploads"
@@ -60,7 +60,7 @@ def _lan_ip():
             sock.close()
 
 
-class RikkaPhoneBridge:
+class PhoneBridge:
     def __init__(self):
         self.cfg = config_mod.load_config()
         key = str(self.cfg.get("api_key", "")).strip()
@@ -86,7 +86,7 @@ class RikkaPhoneBridge:
             gsv_ready = tts.gpt_sovits_health(gsv_url, timeout=1.0)
         return {
             "ok": True,
-            "service": "rikka-phone-bridge",
+            "service": "petforge-phone-bridge",
             "has_api_key": bool(self.client),
             "tts_backend": backend,
             "gpt_sovits_ready": gsv_ready,
@@ -313,7 +313,7 @@ class RikkaPhoneBridge:
 
 
 class PhoneBridgeHandler(BaseHTTPRequestHandler):
-    server_version = "RikkaPhoneBridge/1.0"
+    server_version = "PetForgePhoneBridge/1.0"
     bridge = None
 
     def log_message(self, fmt, *args):
@@ -448,7 +448,7 @@ def _start_discovery_broadcast(port, announce_port=8766):
         except Exception:
             pass
         payload = json.dumps({
-            "service": "rikka-phone-bridge",
+            "service": "petforge-phone-bridge",
             "port": int(port),
             "version": "1.0",
         }).encode("utf-8")
@@ -460,7 +460,7 @@ def _start_discovery_broadcast(port, announce_port=8766):
                     pass
             time.sleep(2)
 
-    threading.Thread(target=loop, daemon=True, name="rikka-discovery-broadcast").start()
+    threading.Thread(target=loop, daemon=True, name="petforge-discovery-broadcast").start()
 
 
 def main():
@@ -469,7 +469,7 @@ def main():
     parser.add_argument("--port", type=int, default=8765)
     args = parser.parse_args()
 
-    bridge = RikkaPhoneBridge()
+    bridge = PhoneBridge()
     PhoneBridgeHandler.bridge = bridge
     server = ThreadingHTTPServer((args.host, args.port), PhoneBridgeHandler)
     server.daemon_threads = True

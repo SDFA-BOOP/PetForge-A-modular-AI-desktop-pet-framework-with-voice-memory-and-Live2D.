@@ -15,10 +15,10 @@
   "onnx": {
     "_comment": "安卓端本地推理用的 ONNX（导出后放到 android/app/src/main/assets/tts/）",
     "ssl": "ssl.onnx",
-    "t2s_encoder": "rikka_t2s_encoder.onnx",
-    "t2s_fs_decoder": "rikka_t2s_fs_decoder.onnx",
-    "t2s_s_decoder": "rikka_t2s_s_decoder.onnx",
-    "vits": "rikka_vits.onnx",
+    "t2s_encoder": "t2s_encoder.onnx",
+    "t2s_fs_decoder": "t2s_fs_decoder.onnx",
+    "t2s_s_decoder": "t2s_s_decoder.onnx",
+    "vits": "vits.onnx",
     "ref_audio": "ref.wav"
   },
 

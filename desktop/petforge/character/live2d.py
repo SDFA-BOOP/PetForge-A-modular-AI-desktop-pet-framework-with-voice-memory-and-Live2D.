@@ -78,7 +78,7 @@ def _default_runtime_dir() -> Path:
 
 
 def _ascii_cache_dir(identity: str) -> Path:
-    base = Path(os.environ.get("LOCALAPPDATA", Path.home())) / "RikkaLive2D" / "model"
+    base = Path(os.environ.get("LOCALAPPDATA", Path.home())) / "PetForgeLive2D" / "model"
     return base / identity
 
 

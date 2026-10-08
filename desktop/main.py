@@ -6,10 +6,10 @@
 import sys
 from pathlib import Path
 
-# 保证无论从哪里启动都能正确导入 rikka 包
+# 保证无论从哪里启动都能正确导入 petforge 包
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from rikka.ui import run
+from petforge.ui import run
 
 
 if __name__ == "__main__":

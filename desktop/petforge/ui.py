@@ -18,15 +18,15 @@ from . import anime_voice, autostart, frost, holiday, persona, screen, stt, tran
 from .ai_client import DeepSeekClient, DeepSeekError, describe_screen
 from .character import create_model
 from .memory import MemoryManager, MemoryStore
-from .journal_writer import RikkaJournal
+from .journal_writer import JournalWriter
 from .vision_log import VisionLog
 
 # 运行日志文件（打包后用 pythonw 启动没有控制台，错误必须写文件 + 上屏才能排查）
-ERROR_LOG = config_mod.BASE_DIR / "rikka.log"
+ERROR_LOG = config_mod.BASE_DIR / "petforge.log"
 
 
 def _log_exception(where: str) -> None:
-    """把当前线程的异常栈写入 rikka.log（失败不影响主流程）。"""
+    """把当前线程的异常栈写入 petforge.log（失败不影响主流程）。"""
     try:
         import traceback
         with open(ERROR_LOG, "a", encoding="utf-8") as f:
@@ -44,13 +44,13 @@ LIGHT_THEME = {
     "bg": "#f5f5f7", "fg": "#1a1a1a",
     "entry_bg": "#ffffff", "entry_fg": "#1a1a1a",
     "btn_bg": "#e7e7ea", "btn_fg": "#1a1a1a",
-    "user": "#1f6feb", "rikka": "#c2255c", "sys": "#868e96",
+    "user": "#1f6feb", "pet": "#c2255c", "sys": "#868e96",
 }
 DARK_THEME = {
     "bg": "#1e1f24", "fg": "#e8e8ea",
     "entry_bg": "#2b2c33", "entry_fg": "#e8e8ea",
     "btn_bg": "#3a3b42", "btn_fg": "#e8e8ea",
-    "user": "#6aa5ff", "rikka": "#ff8fb8", "sys": "#9aa0a6",
+    "user": "#6aa5ff", "pet": "#ff8fb8", "sys": "#9aa0a6",
 }
 
 
@@ -87,7 +87,7 @@ class PetApp:
             consolidate_days=self.cfg["memory"].get("consolidate_days", 30),
         )
         self.vision_log = VisionLog(config_mod.BASE_DIR, self.cfg)
-        self.journal = RikkaJournal(self.mem_store, self.cfg, config_mod.BASE_DIR, vision_log=self.vision_log)
+        self.journal = JournalWriter(self.mem_store, self.cfg, config_mod.BASE_DIR, vision_log=self.vision_log)
         # 启动时后台把超过 30 天的旧日志合并进长期记忆（不阻塞启动）
         threading.Thread(target=self._startup_consolidate, daemon=True).start()
 
@@ -401,8 +401,8 @@ class PetApp:
         self.msg_area.tag_config("user", foreground="#1f6feb")
         self.msg_area.tag_config("user_h", foreground="#1f6feb",
                                  font=("Microsoft YaHei", 11, "bold"))
-        self.msg_area.tag_config("rikka", foreground="#c2255c")
-        self.msg_area.tag_config("rikka_h", foreground="#c2255c",
+        self.msg_area.tag_config("pet", foreground="#c2255c")
+        self.msg_area.tag_config("pet_h", foreground="#c2255c",
                                  font=("Microsoft YaHei", 11, "bold"))
         self.msg_area.tag_config("sys", foreground="#868e96",
                                  font=("Microsoft YaHei", 9))
@@ -1251,7 +1251,7 @@ class PetApp:
         if ctype == "drawn":
             ctype = "image"
         if ctype == "image" and img and not os.path.exists(img):
-            self._append("系统", "找不到形象图片（character/rikka.png），请在 ⚙ 设置中重新选择。")
+            self._append("系统", "找不到形象图片（character/ 目录），请在 ⚙ 设置中重新选择。")
         try:
             self.char = create_model(
                 ctype, size=char_cfg["size"],
@@ -1309,7 +1309,7 @@ class PetApp:
             self.msg_area.configure(bg=c["bg"], fg=c["fg"],
                                     insertbackground=c["fg"], selectbackground=c["btn_bg"])
             for tag, color in (("user", c["user"]), ("user_h", c["user"]),
-                               ("rikka", c["rikka"]), ("rikka_h", c["rikka"]),
+                               ("pet", c["pet"]), ("pet_h", c["pet"]),
                                ("sys", c["sys"])):
                 self.msg_area.tag_config(tag, foreground=color)
         if hasattr(self, "entry"):
@@ -1507,8 +1507,8 @@ class PetApp:
         elif who == "系统":
             self._insert(f"\n[系统] {text}\n", "sys")
         else:
-            self._insert("\n六花：", "rikka_h")
-            self._insert(text + "\n", "rikka")
+            self._insert("\n六花：", "pet_h")
+            self._insert(text + "\n", "pet")
 
     def _speak(self, text, intense=False, spoken_text=None, force_chinese=False):
         if not self.cfg["tts"]["enabled"]:
@@ -1661,10 +1661,10 @@ class PetApp:
                 if kind == "token":
                     if not self._reply_open:
                         self._reply_open = True
-                        self._insert("\n六花：", "rikka_h")
-                    self._insert(payload, "rikka")
+                        self._insert("\n六花：", "pet_h")
+                    self._insert(payload, "pet")
                 elif kind == "done":
-                    self._insert("\n", "rikka")
+                    self._insert("\n", "pet")
                     self._finalize_reply(payload)
                 elif kind == "no_key":
                     self._reply_open = False
@@ -1777,7 +1777,7 @@ class PetApp:
 
 
 def run():
-    # 打包后无控制台：把后台线程异常也写入 rikka.log
+    # 打包后无控制台：把后台线程异常也写入 petforge.log
     try:
         threading.excepthook = lambda args: _log_exception("后台线程异常")
     except Exception:
@@ -1788,7 +1788,7 @@ def run():
         _log_exception("程序启动/主循环")
         try:
             import tkinter.messagebox as mb
-            mb.showerror("小鸟游六花", "程序发生错误，详情已写入程序目录下的 rikka.log 文件。")
+            mb.showerror("小鸟游六花", "程序发生错误，详情已写入程序目录下的 petforge.log 文件。")
         except Exception:
             pass
         raise

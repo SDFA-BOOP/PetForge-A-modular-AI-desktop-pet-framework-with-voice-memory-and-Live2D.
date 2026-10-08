@@ -31,7 +31,7 @@ class JournalError(Exception):
     """自动日记生成或写入失败。"""
 
 
-class RikkaJournal:
+class JournalWriter:
     """管理日记触发日期、AI 生成、去重状态和 TXT 追加。"""
 
     def __init__(self, memory_store, config: dict, base_dir: Path, vision_log=None):
