@@ -53,6 +53,8 @@ PetForge/
 - 安卓端：见 `docs/BUILD.md`
 - 语音引擎：见 `docs/BUILD.md`（需先导出 GPT-SoVITS 模型）
 
+> **模型下载**：可直接使用 [Releases](https://github.com/SDFA-BOOP/PetForge-A-modular-AI-desktop-pet-framework-with-voice-memory-and-Live2D./releases) 里的 GPT-SoVITS 日语模型包（`v0.1.0-models`，约 1.33 GB）。
+
 ## 给它换个角色
 
 1. 准备角色资源（Live2D `.model3.json` 或立绘 PNG）。

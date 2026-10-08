@@ -33,7 +33,10 @@ python main.py
 
 1. 用 `engine/` 的 Rust 工程编译出 `libgpt_sovits_demo_jni.so`（arm64-v8a / x86_64）。
 2. 从 ONNX Runtime Maven AAR 解出 `libonnxruntime.so`。
-3. 把导出的 5 个 GPT-SoVITS ONNX（ssl / t2s_encoder / t2s_fs_decoder / t2s_s_decoder / vits）+ 参考音频放入 `assets/tts/`。
+3. 把 5 个 GPT-SoVITS ONNX（ssl / t2s_encoder / t2s_fs_decoder / t2s_s_decoder / vits）+ 参考音频放入 `assets/tts/`。
+
+> **模型下载**：仓库的 [Releases](https://github.com/SDFA-BOOP/PetForge-A-modular-AI-desktop-pet-framework-with-voice-memory-and-Live2D./releases) 已提供一份可直接使用的 GPT-SoVITS 日语模型包
+> （`v0.1.0-models`：5 个 ONNX + 参考音频 + 训练权重，约 1.33 GB）。下载后把 ONNX 与 `ref.wav` 放进 `assets/tts/` 即可，无需自己导出。
 
 之后运行：
 
