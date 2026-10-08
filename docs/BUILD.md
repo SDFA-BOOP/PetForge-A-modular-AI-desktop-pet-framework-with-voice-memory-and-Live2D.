@@ -35,8 +35,12 @@ python main.py
 2. 从 ONNX Runtime Maven AAR 解出 `libonnxruntime.so`。
 3. 把 5 个 GPT-SoVITS ONNX（ssl / t2s_encoder / t2s_fs_decoder / t2s_s_decoder / vits）+ 参考音频放入 `assets/tts/`。
 
-> **模型下载**：仓库的 [Releases](https://github.com/SDFA-BOOP/PetForge-A-modular-AI-desktop-pet-framework-with-voice-memory-and-Live2D./releases) 已提供一份可直接使用的 GPT-SoVITS 日语模型包
-> （`v0.1.0-models`：5 个 ONNX + 参考音频 + 训练权重，约 1.33 GB）。下载后把 ONNX 与 `ref.wav` 放进 `assets/tts/` 即可，无需自己导出。
+> **语音工具包（模型自备）**：仓库 Release 里的 [v0.1.0-voice-toolkit](https://github.com/SDFA-BOOP/PetForge-A-modular-AI-desktop-pet-framework-with-voice-memory-and-Live2D./releases/tag/v0.1.0-voice-toolkit) 提供：
+> - nalyze/analyze_voice.py：解析参考音频音色（提取 SSL 内容特征）
+> - server/gpt_sovits_server.py + sovits_config.example.json：接入你自己的 GPT-SoVITS 模型（电脑端配音服务）
+> - xport/：把你训练的模型导出成 App 需要的 5 个 ONNX（KV-cache 格式）
+>
+> 本仓库**不附带**任何训练好的模型/音色，请用上述工具接入自备模型。
 
 之后运行：
 
