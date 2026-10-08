@@ -123,6 +123,47 @@ android/app/src/main/assets/tts/
 python analyze/analyze_voice.py --ref ref.wav --gpt-sovits E:/GPT-SoVITS --device cuda
 ```
 
+### 更改配音语言
+
+GPT-SoVITS 的配音语言由合成时的 `text_lang` 参数决定。底层引擎支持**中文（含中英混读）/ 日语 / 粤语**三种。
+
+#### 电脑端（可直接切换）
+
+在**设置 → 配音**里的「**日语输出（回复翻译成日语朗读）**」勾选框切换（对应 `config.json` 的 `tts.japanese`）：
+
+- **不勾**：以 `text_lang="zh"` 合成 → 中文配音。
+- **勾上**：先把回复翻译成日语，再以 `text_lang="ja"` 合成 → 日语配音（界面文字仍是中文）。
+
+| 配音语言 | `tts.japanese` | 实际 `text_lang` |
+|----------|----------------|------------------|
+| 中文 | `false` | `zh` |
+| 日语 | `true` | `ja` |
+
+> 这个开关对 `edge` 和 `gpt_sovits` 两种后端都生效。
+
+#### 安卓端（当前固定为日语）
+
+App 默认「先把中文翻译成日语再合成」，且引擎语言在代码里写死为日语，暂无可切换的 UI。想改成中文配音需改两处：
+
+- `android/app/src/main/assets/web/app.js`：去掉 `translateToJapanese(...)`，直接 `NativeTts.speak(原始中文)`。
+- `android/app/src/main/java/com/petforge/live2ddemo/MainActivity.java`：把 `GSV_LANG_JA`（值 `1`）改成中文对应的 `0`（见下表）。
+
+#### 引擎支持的语言代码
+
+`text_lang` / JNI 传入的整型 → `LangId` 映射：
+
+| JNI 值 | `LangId` | 说明 |
+|--------|----------|------|
+| `0` | `Auto` | 中文（英文按 G2P 混读） |
+| `1` | `Ja` | 日语 |
+| `2` | `AutoYue` | 粤语 |
+
+> 参考：`engine/gpt-sovits-android/src/text/mod.rs`（`LangId`）与 `engine/gpt-sovits-android/examples/gpt_sovits_demo_jni.rs`（`lang_from_int`）。
+
+#### 接入配置里的默认语言
+
+`voice/model_config.example.json` 的 `tts.text_lang` 用来声明该模型的**推荐 / 默认语言**（示例填的是 `"ja"`），按你模型的实际情况填写即可。
+
 ## 日记系统
 
 桌宠内置一套**自动日记**：让角色作为**观察者**，用第三人称把「你」一天的日常写进已有的日记文件里。
