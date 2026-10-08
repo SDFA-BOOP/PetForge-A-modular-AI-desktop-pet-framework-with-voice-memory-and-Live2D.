@@ -1,4 +1,4 @@
-package com.rikka.live2ddemo;
+package com.petforge.live2ddemo;
 
 import android.Manifest;
 import android.app.Activity;
@@ -71,7 +71,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class MainActivity extends Activity {
-    private static final String TAG = "RikkaLive2D";
+    private static final String TAG = "PetForgeLive2D";
     private static final String ASSET_HOST = "appassets.local";
     private static final String ASSET_HOME = "https://" + ASSET_HOST + "/index.html";
     private static final int CAMERA_REQUEST = 1001;
@@ -708,7 +708,7 @@ public class MainActivity extends Activity {
             localTts.setSpeechRate(0.95f * voiceSpeed);
             localTts.setPitch(1.05f + voicePitch / 24.0f);
         } catch (Throwable ignored) {}
-        localTts.speak(text.trim(), TextToSpeech.QUEUE_FLUSH, null, "rikka-local-tts");
+        localTts.speak(text.trim(), TextToSpeech.QUEUE_FLUSH, null, "petforge-local-tts");
     }
 
     private void stopTts() {
@@ -922,7 +922,7 @@ public class MainActivity extends Activity {
                 public void run() {
                     loop();
                 }
-            }, "rikka-udp-discovery");
+            }, "petforge-udp-discovery");
             thread.setDaemon(true);
             thread.start();
         }
@@ -1242,7 +1242,7 @@ public class MainActivity extends Activity {
                 public void run() {
                     loop();
                 }
-            }, "rikka-asset-server");
+            }, "petforge-asset-server");
             thread.setDaemon(true);
             thread.start();
         }

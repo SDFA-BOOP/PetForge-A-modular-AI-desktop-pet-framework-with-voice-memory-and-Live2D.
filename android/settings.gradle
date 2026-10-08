@@ -17,5 +17,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "RikkaLive2D"
+rootProject.name = "PetForgeLive2D"
 include ':app'

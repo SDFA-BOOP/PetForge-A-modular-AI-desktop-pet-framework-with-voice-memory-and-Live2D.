@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace 'com.rikka.live2ddemo'
+    namespace 'com.petforge.live2ddemo'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.rikka.live2ddemo"
+        applicationId "com.petforge.live2ddemo"
         minSdk 24
         targetSdk 34
         versionCode 27

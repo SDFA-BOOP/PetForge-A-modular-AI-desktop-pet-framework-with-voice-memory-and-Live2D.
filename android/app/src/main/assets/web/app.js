@@ -173,22 +173,43 @@
     try { window.localStorage.setItem(key, String(value)); } catch (_) {}
   }
 
+  // 兼容旧版本：把旧存储前缀一次性迁移到 petforge.*（不丢设置/记忆）
+  function migrateLegacyStorage() {
+    try {
+      const legacyPrefix = 'rik' + 'ka.';   // 旧前缀（拼接以避免被全局改名误伤）
+      const newPrefix = 'petforge.';
+      const keys = [];
+      for (let i = 0; i < window.localStorage.length; i++) {
+        const k = window.localStorage.key(i);
+        if (k && k.indexOf(legacyPrefix) === 0) keys.push(k);
+      }
+      for (const k of keys) {
+        const nk = newPrefix + k.slice(legacyPrefix.length);
+        if (window.localStorage.getItem(nk) === null) {
+          window.localStorage.setItem(nk, window.localStorage.getItem(k));
+        }
+        window.localStorage.removeItem(k);
+      }
+    } catch (_) {}
+  }
+  migrateLegacyStorage();
+
   function getDeviceId() {
-    let id = readStored('rikka.deviceId');
+    let id = readStored('petforge.deviceId');
     if (!id) {
       id = 'ph-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
-      storeValue('rikka.deviceId', id);
+      storeValue('petforge.deviceId', id);
     }
     return id;
   }
 
   function persistHistory() {
-    try { storeValue('rikka.history', JSON.stringify(directHistory)); } catch (_) {}
+    try { storeValue('petforge.history', JSON.stringify(directHistory)); } catch (_) {}
   }
 
-  function saveMsgLog() { try { storeValue('rikka.msglog', JSON.stringify(msgLog)); } catch (_) {} }
-  function saveJournal() { try { storeValue('rikka.journal', JSON.stringify(journal)); } catch (_) {} }
-  function saveMemoryMeta() { try { storeValue('rikka.meta', JSON.stringify(memoryMeta)); } catch (_) {} }
+  function saveMsgLog() { try { storeValue('petforge.msglog', JSON.stringify(msgLog)); } catch (_) {} }
+  function saveJournal() { try { storeValue('petforge.journal', JSON.stringify(journal)); } catch (_) {} }
+  function saveMemoryMeta() { try { storeValue('petforge.meta', JSON.stringify(memoryMeta)); } catch (_) {} }
 
   function appendMessage(role, content) {
     const m = { role, content, ts: Date.now() };
@@ -229,7 +250,7 @@
         .replace('{logs}', old.join('\n')));
       if (merged) {
         memorySummary = merged.slice(0, 1200);
-        storeValue('rikka.memory', memorySummary);
+        storeValue('petforge.memory', memorySummary);
         for (const d of Object.keys(journal)) if (d < cutoff) delete journal[d];
         saveJournal();
       }
@@ -280,7 +301,7 @@
     darkMode = !!enabled;
     document.body.classList.toggle('dark', darkMode);
     if (darkToggle) darkToggle.checked = darkMode;
-    storeValue('rikka.dark', darkMode ? '1' : '0');
+    storeValue('petforge.dark', darkMode ? '1' : '0');
   }
 
   function clampNumber(value, minimum, maximum, fallback) {
@@ -295,42 +316,42 @@
     if (amplitudeValue) amplitudeValue.textContent = animationAmplitude.toFixed(2) + '×';
     if (motionAmplitudeInput) motionAmplitudeInput.value = String(animationAmplitude);
     if (motionAmplitudeValue) motionAmplitudeValue.textContent = animationAmplitude.toFixed(2) + '×';
-    storeValue('rikka.amplitude', animationAmplitude.toFixed(2));
+    storeValue('petforge.amplitude', animationAmplitude.toFixed(2));
   }
 
   function updateMotionSpeed(value) {
     motionSpeed = clampNumber(value, 0.2, 2.5, 1);
     if (motionSpeedInput) motionSpeedInput.value = String(motionSpeed);
     if (motionSpeedValue) motionSpeedValue.textContent = motionSpeed.toFixed(2) + '×';
-    storeValue('rikka.motionSpeed', motionSpeed.toFixed(2));
+    storeValue('petforge.motionSpeed', motionSpeed.toFixed(2));
   }
 
   function updateFollowStrength(value) {
     followStrength = clampNumber(value, 0, 2, 1);
     if (motionFollowInput) motionFollowInput.value = String(followStrength);
     if (motionFollowValue) motionFollowValue.textContent = followStrength.toFixed(2) + '×';
-    storeValue('rikka.followStrength', followStrength.toFixed(2));
+    storeValue('petforge.followStrength', followStrength.toFixed(2));
   }
 
   function updateIdleAmplitude(value) {
     idleAmplitude = clampNumber(value, 0, 2, 1);
     if (motionIdleInput) motionIdleInput.value = String(idleAmplitude);
     if (motionIdleValue) motionIdleValue.textContent = idleAmplitude.toFixed(2) + '×';
-    storeValue('rikka.idleAmplitude', idleAmplitude.toFixed(2));
+    storeValue('petforge.idleAmplitude', idleAmplitude.toFixed(2));
   }
 
   function updateBreathAmplitude(value) {
     breathAmplitude = clampNumber(value, 0, 2, 1);
     if (motionBreathInput) motionBreathInput.value = String(breathAmplitude);
     if (motionBreathValue) motionBreathValue.textContent = breathAmplitude.toFixed(2) + '×';
-    storeValue('rikka.breathAmplitude', breathAmplitude.toFixed(2));
+    storeValue('petforge.breathAmplitude', breathAmplitude.toFixed(2));
   }
 
   function updateCharacterScale(value) {
     characterScale = clampNumber(value, 0.55, 1.65, 1);
     if (characterScaleInput) characterScaleInput.value = String(characterScale);
     if (characterScaleValue) characterScaleValue.textContent = characterScale.toFixed(2) + '×';
-    storeValue('rikka.characterScale', characterScale.toFixed(2));
+    storeValue('petforge.characterScale', characterScale.toFixed(2));
     scheduleModelTransform();
   }
 
@@ -338,7 +359,7 @@
     characterX = clampNumber(value, -0.35, 0.35, 0);
     if (characterXInput) characterXInput.value = String(characterX);
     if (characterXValue) characterXValue.textContent = characterX.toFixed(2);
-    storeValue('rikka.characterX', characterX.toFixed(2));
+    storeValue('petforge.characterX', characterX.toFixed(2));
     scheduleModelTransform();
   }
 
@@ -346,7 +367,7 @@
     characterY = clampNumber(value, -0.35, 0.35, 0);
     if (characterYInput) characterYInput.value = String(characterY);
     if (characterYValue) characterYValue.textContent = characterY.toFixed(2);
-    storeValue('rikka.characterY', characterY.toFixed(2));
+    storeValue('petforge.characterY', characterY.toFixed(2));
     scheduleModelTransform();
   }
   function setOrientationPageOpen(open) {
@@ -383,7 +404,7 @@
     if (modePortraitButton) modePortraitButton.classList.toggle('active', !bigHead);
     if (modeLandscapeButton) modeLandscapeButton.classList.toggle('active', bigHead);
     if (modeValue) modeValue.textContent = bigHead ? '横屏 · 大头' : '竖屏 · 全身';
-    storeValue('rikka.displayMode', displayMode);
+    storeValue('petforge.displayMode', displayMode);
     if (window.NativeFaceBridge && typeof window.NativeFaceBridge.setOrientation === 'function') {
       try { window.NativeFaceBridge.setOrientation(bigHead ? 'landscape' : 'portrait'); } catch (_) {}
     }
@@ -555,7 +576,7 @@
       return;
     }
     bridgeUrl = base;
-    storeValue('rikka.bridgeUrl', bridgeUrl);
+    storeValue('petforge.bridgeUrl', bridgeUrl);
     if (bridgeUrlInput) bridgeUrlInput.value = bridgeUrl;
     setBridgeState('正在测试…', false);
     try {
@@ -670,7 +691,7 @@
     const previous = bridgeUrl;
     bridgeUrl = url;
     if (bridgeUrlInput) bridgeUrlInput.value = bridgeUrl;
-    storeValue('rikka.bridgeUrl', bridgeUrl);
+    storeValue('petforge.bridgeUrl', bridgeUrl);
     if (!directMode && previous !== url) {
       setBridgeState('已发现电脑 · ' + ip, true);
       syncMemoryToBridge();
@@ -811,7 +832,7 @@
       return;
     }
     bridgeUrl = base;
-    storeValue('rikka.bridgeUrl', bridgeUrl);
+    storeValue('petforge.bridgeUrl', bridgeUrl);
     if (bridgeUrlInput) bridgeUrlInput.value = bridgeUrl;
     appendChatBubble(displayText || text, 'user');
     chatBusy = true;
@@ -901,7 +922,7 @@
       return;
     }
     bridgeUrl = base;
-    storeValue('rikka.bridgeUrl', bridgeUrl);
+    storeValue('petforge.bridgeUrl', bridgeUrl);
     const comma = dataUrl.indexOf(',');
     const dataBase64 = comma >= 0 ? dataUrl.slice(comma + 1) : dataUrl;
     appendChatBubble('正在上传照片…', 'system');
@@ -1027,15 +1048,15 @@
     }
   }
   function setupBridgeControls() {
-    const storedUrl = readStored('rikka.bridgeUrl');
-    directMode = readStored('rikka.directMode') === '1';
-    apiKey = readStored('rikka.apiKey') || '';
-    apiBase = readStored('rikka.apiBase') || 'https://api.deepseek.com';
-    apiModel = readStored('rikka.apiModel') || 'deepseek-chat';
-    try { msgLog = JSON.parse(readStored('rikka.msglog') || '[]'); } catch (_) { msgLog = []; }
-    try { journal = JSON.parse(readStored('rikka.journal') || '{}'); } catch (_) { journal = {}; }
-    try { memoryMeta = JSON.parse(readStored('rikka.meta') || '{}'); } catch (_) { memoryMeta = {}; }
-    memorySummary = readStored('rikka.memory') || '';
+    const storedUrl = readStored('petforge.bridgeUrl');
+    directMode = readStored('petforge.directMode') === '1';
+    apiKey = readStored('petforge.apiKey') || '';
+    apiBase = readStored('petforge.apiBase') || 'https://api.deepseek.com';
+    apiModel = readStored('petforge.apiModel') || 'deepseek-chat';
+    try { msgLog = JSON.parse(readStored('petforge.msglog') || '[]'); } catch (_) { msgLog = []; }
+    try { journal = JSON.parse(readStored('petforge.journal') || '{}'); } catch (_) { journal = {}; }
+    try { memoryMeta = JSON.parse(readStored('petforge.meta') || '{}'); } catch (_) { memoryMeta = {}; }
+    memorySummary = readStored('petforge.memory') || '';
     directHistory = msgLog.slice(-20).map((m) => ({ role: m.role, content: m.content }));
     restoreChatHistory();
     if (!directMode) syncMemoryToBridge();
@@ -1046,12 +1067,12 @@
     if (apiModelInput) apiModelInput.value = apiModel;
     if (directModeToggle) directModeToggle.addEventListener('change', () => {
       directMode = !!directModeToggle.checked;
-      storeValue('rikka.directMode', directMode ? '1' : '0');
+      storeValue('petforge.directMode', directMode ? '1' : '0');
       setBridgeState(directMode ? '手机直连模式' : '电脑桥接模式', false);
     });
     if (apiKeyInput) apiKeyInput.addEventListener('change', () => {
       apiKey = apiKeyInput.value.trim();
-      storeValue('rikka.apiKey', apiKey);
+      storeValue('petforge.apiKey', apiKey);
     });
     if (apiKeyPaste && window.NativeClipboard && typeof window.NativeClipboard.readText === 'function') {
       apiKeyPaste.addEventListener('click', () => {
@@ -1060,38 +1081,38 @@
           if (text) {
             apiKey = text.trim();
             if (apiKeyInput) apiKeyInput.value = apiKey;
-            storeValue('rikka.apiKey', apiKey);
+            storeValue('petforge.apiKey', apiKey);
           }
         } catch (_) {}
       });
     }
     if (apiBaseInput) apiBaseInput.addEventListener('change', () => {
       apiBase = apiBaseInput.value.trim() || 'https://api.deepseek.com';
-      storeValue('rikka.apiBase', apiBase);
+      storeValue('petforge.apiBase', apiBase);
     });
     if (apiModelInput) apiModelInput.addEventListener('change', () => {
       apiModel = apiModelInput.value.trim() || 'deepseek-chat';
-      storeValue('rikka.apiModel', apiModel);
+      storeValue('petforge.apiModel', apiModel);
     });
-    visionModel = readStored('rikka.visionModel') || 'deepseek-v4-flash-vision-exp';
+    visionModel = readStored('petforge.visionModel') || 'deepseek-v4-flash-vision-exp';
     if (visionModelInput) {
       visionModelInput.value = visionModel;
       visionModelInput.addEventListener('change', () => {
         visionModel = visionModelInput.value.trim() || 'deepseek-v4-flash-vision-exp';
-        storeValue('rikka.visionModel', visionModel);
+        storeValue('petforge.visionModel', visionModel);
       });
     }
 
-    localVoiceEnabled = readStored('rikka.localVoice') !== '0';
-    voiceSpeed = parseFloat(readStored('rikka.voiceSpeed') || '1') || 1;
-    voiceVolume = parseFloat(readStored('rikka.voiceVolume') || '1') || 1;
-    voicePitch = parseInt(readStored('rikka.voicePitch') || '0', 10) || 0;
-    voiceDeelect = parseInt(readStored('rikka.voiceDeelect') || '0', 10) || 0;
+    localVoiceEnabled = readStored('petforge.localVoice') !== '0';
+    voiceSpeed = parseFloat(readStored('petforge.voiceSpeed') || '1') || 1;
+    voiceVolume = parseFloat(readStored('petforge.voiceVolume') || '1') || 1;
+    voicePitch = parseInt(readStored('petforge.voicePitch') || '0', 10) || 0;
+    voiceDeelect = parseInt(readStored('petforge.voiceDeelect') || '0', 10) || 0;
     if (localVoiceToggle) {
       localVoiceToggle.checked = localVoiceEnabled;
       localVoiceToggle.addEventListener('change', () => {
         localVoiceEnabled = !!localVoiceToggle.checked;
-        storeValue('rikka.localVoice', localVoiceEnabled ? '1' : '0');
+        storeValue('petforge.localVoice', localVoiceEnabled ? '1' : '0');
         pushVoiceConfig();
       });
     }
@@ -1101,7 +1122,7 @@
       voiceSpeedInput.addEventListener('input', () => {
         voiceSpeed = parseFloat(voiceSpeedInput.value) || 1;
         if (voiceSpeedValue) voiceSpeedValue.textContent = voiceSpeed.toFixed(2) + '×';
-        storeValue('rikka.voiceSpeed', String(voiceSpeed));
+        storeValue('petforge.voiceSpeed', String(voiceSpeed));
         pushVoiceConfig();
       });
     }
@@ -1111,7 +1132,7 @@
       voiceVolumeInput.addEventListener('input', () => {
         voiceVolume = (parseFloat(voiceVolumeInput.value) || 0) / 100;
         if (voiceVolumeValue) voiceVolumeValue.textContent = Math.round(voiceVolume * 100) + '%';
-        storeValue('rikka.voiceVolume', String(voiceVolume));
+        storeValue('petforge.voiceVolume', String(voiceVolume));
         pushVoiceConfig();
       });
     }
@@ -1121,7 +1142,7 @@
       voicePitchInput.addEventListener('input', () => {
         voicePitch = parseInt(voicePitchInput.value, 10) || 0;
         if (voicePitchValue) voicePitchValue.textContent = String(voicePitch);
-        storeValue('rikka.voicePitch', String(voicePitch));
+        storeValue('petforge.voicePitch', String(voicePitch));
         pushVoiceConfig();
       });
     }
@@ -1131,7 +1152,7 @@
       voiceDeelectInput.addEventListener('input', () => {
         voiceDeelect = parseInt(voiceDeelectInput.value, 10) || 0;
         if (voiceDeelectValue) voiceDeelectValue.textContent = voiceDeelect + '%';
-        storeValue('rikka.voiceDeelect', String(voiceDeelect));
+        storeValue('petforge.voiceDeelect', String(voiceDeelect));
         pushVoiceConfig();
       });
     }
@@ -1142,10 +1163,10 @@
         if (voiceVolumeInput) { voiceVolumeInput.value = 100; if (voiceVolumeValue) voiceVolumeValue.textContent = '100%'; }
         if (voicePitchInput) { voicePitchInput.value = 0; if (voicePitchValue) voicePitchValue.textContent = '0'; }
         if (voiceDeelectInput) { voiceDeelectInput.value = 0; if (voiceDeelectValue) voiceDeelectValue.textContent = '0%'; }
-        storeValue('rikka.voiceSpeed', '1');
-        storeValue('rikka.voiceVolume', '1');
-        storeValue('rikka.voicePitch', '0');
-        storeValue('rikka.voiceDeelect', '0');
+        storeValue('petforge.voiceSpeed', '1');
+        storeValue('petforge.voiceVolume', '1');
+        storeValue('petforge.voicePitch', '0');
+        storeValue('petforge.voiceDeelect', '0');
         pushVoiceConfig();
       });
     }
@@ -1163,8 +1184,8 @@
         persistHistory();
         saveMsgLog();
         saveJournal();
-        storeValue('rikka.memory', '');
-        storeValue('rikka.meta', '{}');
+        storeValue('petforge.memory', '');
+        storeValue('petforge.meta', '{}');
         appendChatBubble('聊天记忆已清空', 'system');
       });
     }
@@ -1179,13 +1200,13 @@
       bridgeUrlInput.addEventListener('change', () => {
         bridgeUrl = normalizeBridgeUrl(bridgeUrlInput.value);
         bridgeUrlInput.value = bridgeUrl;
-        storeValue('rikka.bridgeUrl', bridgeUrl);
+        storeValue('petforge.bridgeUrl', bridgeUrl);
         setBridgeState('未测试', false);
       });
     }
     if (chatVoice) {
-      chatVoice.checked = readStored('rikka.chatVoice') !== '0';
-      chatVoice.addEventListener('change', () => storeValue('rikka.chatVoice', chatVoice.checked ? '1' : '0'));
+      chatVoice.checked = readStored('petforge.chatVoice') !== '0';
+      chatVoice.addEventListener('change', () => storeValue('petforge.chatVoice', chatVoice.checked ? '1' : '0'));
     }
     if (chatOpen) chatOpen.addEventListener('click', () => setChatPanelOpen(true));
     if (chatClose) chatClose.addEventListener('click', () => setChatPanelOpen(false));
@@ -1201,7 +1222,7 @@
     if (photoCaptionSend) photoCaptionSend.addEventListener('click', sendPhotoCaption);
     if (photoCaptionSkip) photoCaptionSkip.addEventListener('click', closePhotoCaption);
     if (photoCaptionDialog) photoCaptionDialog.addEventListener('click', (event) => { if (event.target === photoCaptionDialog) closePhotoCaption(); });
-    micAlwaysOn = readStored('rikka.micAlwaysOn') === '1';
+    micAlwaysOn = readStored('petforge.micAlwaysOn') === '1';
     if (chatMicAlways) chatMicAlways.checked = micAlwaysOn;
     if (window.NativeSpeech && typeof window.NativeSpeech.setContinuous === 'function') {
       window.NativeSpeech.setContinuous(micAlwaysOn);
@@ -1209,7 +1230,7 @@
     if (chatMicAlways) {
       chatMicAlways.addEventListener('change', () => {
         micAlwaysOn = !!chatMicAlways.checked;
-        storeValue('rikka.micAlwaysOn', micAlwaysOn ? '1' : '0');
+        storeValue('petforge.micAlwaysOn', micAlwaysOn ? '1' : '0');
         if (window.NativeSpeech && typeof window.NativeSpeech.setContinuous === 'function') {
           window.NativeSpeech.setContinuous(micAlwaysOn);
         }
@@ -1222,16 +1243,16 @@
     }
   }
   function setupControls() {
-    const storedDark = readStored('rikka.dark');
-    const storedAmplitude = Number(readStored('rikka.amplitude'));
-    const storedMode = readStored('rikka.displayMode');
-    const storedSpeed = Number(readStored('rikka.motionSpeed'));
-    const storedFollow = Number(readStored('rikka.followStrength'));
-    const storedIdle = Number(readStored('rikka.idleAmplitude'));
-    const storedBreath = Number(readStored('rikka.breathAmplitude'));
-    const storedCharacterScale = Number(readStored('rikka.characterScale'));
-    const storedCharacterX = Number(readStored('rikka.characterX'));
-    const storedCharacterY = Number(readStored('rikka.characterY'));
+    const storedDark = readStored('petforge.dark');
+    const storedAmplitude = Number(readStored('petforge.amplitude'));
+    const storedMode = readStored('petforge.displayMode');
+    const storedSpeed = Number(readStored('petforge.motionSpeed'));
+    const storedFollow = Number(readStored('petforge.followStrength'));
+    const storedIdle = Number(readStored('petforge.idleAmplitude'));
+    const storedBreath = Number(readStored('petforge.breathAmplitude'));
+    const storedCharacterScale = Number(readStored('petforge.characterScale'));
+    const storedCharacterX = Number(readStored('petforge.characterX'));
+    const storedCharacterY = Number(readStored('petforge.characterY'));
     applyDarkMode(storedDark === '1');
     updateAmplitude(Number.isFinite(storedAmplitude) && storedAmplitude > 0 ? storedAmplitude : 1);
     updateMotionSpeed(Number.isFinite(storedSpeed) && storedSpeed > 0 ? storedSpeed : 1);
