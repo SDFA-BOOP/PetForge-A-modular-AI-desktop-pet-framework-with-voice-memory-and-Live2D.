@@ -6,6 +6,8 @@
 
 > **由来**：这个项目最初是为动画角色「小鸟游六花」（《中二病也要谈恋爱！》）打造的桌宠，
 > 后来抽离成通用框架。仓库里保留的默认人设（`persona`）与示例配置仍是六花，可自行替换成任何角色。
+>
+> 邪王真眼是最强的！QAQ
 
 > 本项目为「框架 + 示例」，训练好的语音模型、API Key、运行时数据等均未包含，需要自行准备。
 
@@ -120,6 +122,12 @@ android/app/src/main/assets/tts/
 ```bat
 python analyze/analyze_voice.py --ref ref.wav --gpt-sovits E:/GPT-SoVITS --device cuda
 ```
+
+## 相关视频
+
+- [演示视频 1](https://www.bilibili.com/video/BV1Teec6BE7q/)
+- [演示视频 2](https://www.bilibili.com/video/BV1iubn6ZEnv/)
+- [演示视频 3](https://www.bilibili.com/video/BV1VwtJ6DEmf/)
 
 ## 许可说明
 
