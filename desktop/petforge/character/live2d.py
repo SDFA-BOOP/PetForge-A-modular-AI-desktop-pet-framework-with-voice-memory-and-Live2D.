@@ -247,8 +247,14 @@ class Live2DWidget(OpenGLFrame):
         if self.model is not None and parameter_id in self.param_ids:
             self.model.SetParameterValue(parameter_id, value)
 
-    def bind(self, key: str, value: float):
-        """按语义名绑定参数：key 会先从 PARAMETER_MAP 解析成真实参数 ID。"""
+    def bind(self, key, value=None, add=None):
+        """重载 Tk 的 bind：事件序列（'<Map>' 等）转发回 Tk，其余按语义名绑定 Live2D 参数。
+
+        必须转发回 Tk —— pyopengltk 基类在 __init__ 里就会调用
+        self.bind('<Map>', self.tkMap)，若被当成参数名，会在 self.model 建好之前报错。
+        """
+        if isinstance(key, str) and key.startswith("<"):
+            return super().bind(key, value, add)
         self.set_parameter(PARAMETER_MAP.get(key, key), value)
 
     def redraw(self):
