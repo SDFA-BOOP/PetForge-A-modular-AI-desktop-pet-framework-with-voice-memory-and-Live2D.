@@ -13,7 +13,8 @@ from . import persona
 SUMMARY_PROMPT = (
     "请把下面这段对话历史压缩成一段简洁的长期记忆摘要（用第三人称）。"
     "必须保留：1) 用户的关键个人信息、偏好、约定；2) 六花与用户之间重要的约定或承诺；"
-    "3) 最近讨论过的重要话题与结论。用中文，150 字以内，只输出摘要正文。\n\n"
+    "3) 最近讨论过的重要话题与结论。用中文，150 字以内，只输出摘要正文。\n"
+    "【时间写法·必须遵守】把对话里的相对时间（今天/明天/昨天/后天/这周五/下周一/上个月/下个月等）一律换算成具体日期，写成 YYYY-MM-DD（有具体时刻就一并写上），绝不要保留“这周五”这类相对说法。今天是 {today}。\n\n"
     "对话历史：\n{history}"
 )
 
@@ -21,13 +22,18 @@ SUMMARY_PROMPT = (
 JOURNAL_PROMPT = (
     "请把 {date} 的这段对话整理成一条记忆日志（用中文 3~6 句），记录："
     "1) 聊了什么主题；2) 关于勇太（用户）的重要信息——喜好、状态、烦恼、提到的计划等；"
-    "3) 你们互动的情况。只输出日志正文，不要解释、不要日期前缀。\n\n对话：\n{history}"
+    "3) 你们互动的情况。\n"
+    "【时间写法·必须遵守】把对话里的相对时间（今天/明天/昨天/后天/这周五/下周一/上个月/下个月等）"
+    "以当天日期 {date} 为基准换算成具体日期，写成 YYYY-MM-DD，绝不要保留“这周五”这类相对说法。\n"
+    "只输出日志正文，不要解释、不要日期前缀。\n\n对话：\n{history}"
 )
 
 # 超过30天的旧日志 → 合并进长期记忆概括
 CONSOLIDATE_PROMPT = (
     "下面是已有的长期记忆概括和一批超过30天的旧记忆日志，请合并成一段新的长期记忆概括"
-    "（保留所有重要信息，用中文、尽量简洁）。只输出合并后的概括。\n\n"
+    "（保留所有重要信息，用中文、尽量简洁）。\n"
+    "【时间写法·必须遵守】把对话里的相对时间（今天/明天/昨天/后天/这周五/下周一/上个月/下个月等）一律换算成具体日期，写成 YYYY-MM-DD（有具体时刻就一并写上），绝不要保留“这周五”这类相对说法。今天是 {today}。\n"
+    "只输出合并后的概括。\n\n"
     "已有长期记忆概括：\n{old_summary}\n\n旧记忆日志：\n{logs}"
 )
 
@@ -35,7 +41,10 @@ CONSOLIDATE_PROMPT = (
 UPDATE_JOURNAL_PROMPT = (
     "下面是 {date} 已写好的记忆日志和当天新发生的对话。"
     "请把新增对话中的重要信息整合进去，输出合并更新后的完整日志"
-    "（用中文 3~6 句，保留原有重要信息，不要丢失细节）。"
+    "（用中文 3~6 句，保留原有重要信息，不要丢失细节）。\n"
+    "【时间写法·必须遵守】把对话里的相对时间（今天/明天/昨天/后天/这周五/下周一/上个月/下个月等）"
+    "以当天日期 {date} 为基准换算成具体日期，写成 YYYY-MM-DD；"
+    "已有日志里若还留着“这周五”这类相对说法，也一并改成具体日期。\n"
     "只输出日志正文，不要解释、不要日期前缀。\n\n"
     "已有日志：\n{old}\n\n新增对话：\n{history}"
 )
@@ -109,6 +118,13 @@ class MemoryStore:
         with self._lock:
             return self._conn.execute(
                 "SELECT id, role, content FROM messages ORDER BY id ASC LIMIT ?", (n,)
+            ).fetchall()
+
+    def oldest_with_time(self, n: int) -> List[tuple]:
+        """最旧的 n 条消息 [(id, role, content, created_at)]；压缩进长期记忆时用于换算绝对日期。"""
+        with self._lock:
+            return self._conn.execute(
+                "SELECT id, role, content, created_at FROM messages ORDER BY id ASC LIMIT ?", (n,)
             ).fetchall()
 
     def delete_ids(self, ids: List[int]):
@@ -259,13 +275,16 @@ class MemoryManager:
         if total <= self.summarize_after * 2:
             return
         to_compress = total - keep
-        rows = self.store.oldest(to_compress)
+        rows = self.store.oldest_with_time(to_compress)
         if not rows:
             return
-        history = "\n".join(f"{role}: {content}" for _, role, content in rows)
+        history = "\n".join(
+            f"[{datetime.datetime.fromtimestamp(ts):%Y-%m-%d %H:%M}] {role}: {content}"
+            for _id, role, content, ts in rows)
         try:
             summary = chat_func(
-                [{"role": "user", "content": SUMMARY_PROMPT.format(history=history)}]
+                [{"role": "user", "content": SUMMARY_PROMPT.format(
+                    today=datetime.date.today().isoformat(), history=history)}]
             ).strip()
         except Exception:
             return
@@ -322,6 +341,7 @@ class MemoryManager:
         old_summary = self.store.get_summary() or "（暂无）"
         try:
             merged = chat_func([{"role": "user", "content": CONSOLIDATE_PROMPT.format(
+                today=datetime.date.today().isoformat(),
                 old_summary=old_summary, logs=logs)}]).strip()
         except Exception:
             return False

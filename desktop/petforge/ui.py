@@ -628,7 +628,8 @@ class PetApp:
         return now + self._care_interval(care)
 
     def _send_care(self):
-        line = random.choice(persona.CARE_LINES)
+        # 按时段挑台词：白天不会说「晚安」，深夜不会问「早上好」
+        line = persona.care_line()
         self._append("六花", line)
         self._speak(line)
 
