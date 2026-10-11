@@ -89,7 +89,7 @@ DEFAULT_CONFIG = {
         "gpt_sovits_venv_python": "",   # 六花原声 venv python（留空自动探测：项目内 GPT-SoVITS/venv，其次旧绝对路径）
         "gpt_sovits_server_py": "",     # 六花原声服务脚本（留空自动探测）
         "voice": "zh-CN-XiaoyiNeural",
-        "language": "zh",              # 配音语言：zh(中文) | ja(日语) | en(英语)；回复文字仍为中文，仅朗读语言不同
+        "language": "",               # 配音语言：zh(中文) | ja(日语) | en(英语)；留空 = 沿用旧字段 japanese
         "japanese": False,             # 旧字段（兼容保留）：等价于 language=ja，language 优先
         "jp_voice": "ja-JP-NanamiNeural",  # 日语配音声线（edge 后端）
         "en_voice": "en-US-AriaNeural",    # 英语配音声线（edge 后端）
