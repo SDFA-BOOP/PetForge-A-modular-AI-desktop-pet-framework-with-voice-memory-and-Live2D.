@@ -22,6 +22,10 @@ class SpriteCharacterModel(CharacterModel):
     def __init__(self, size: int = 240, sprite_dir: str = "", frame_interval: float = 0.12):
         super().__init__(size)
         self.sprite_dir = sprite_dir
+        # 相对路径以程序根目录为基准解析（与 image/layered/live2d 一致）
+        if self.sprite_dir and not os.path.isabs(self.sprite_dir):
+            root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            self.sprite_dir = os.path.normpath(os.path.join(root, self.sprite_dir))
         self.frame_interval = frame_interval
         self._frames = {}
         self._emotion = "neutral"

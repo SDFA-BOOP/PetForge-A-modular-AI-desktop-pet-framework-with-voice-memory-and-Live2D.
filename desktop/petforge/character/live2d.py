@@ -85,7 +85,11 @@ def _ascii_cache_dir(identity: str) -> Path:
 def _ensure_ascii_runtime(model_json: str) -> Path:
     """Live2D native cannot reliably load non-ASCII paths, so copy to local cache."""
     if model_json:
-        source_manifest = Path(model_json).expanduser().resolve()
+        path = Path(model_json).expanduser()
+        # 相对路径以程序根目录为基准（与 image/layered 一致），不依赖启动时的 cwd
+        if not path.is_absolute():
+            path = _root_dir() / path
+        source_manifest = path.resolve()
     else:
         source_manifest = _default_runtime_dir() / DEFAULT_MODEL_FILE
 
